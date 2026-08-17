@@ -10,7 +10,7 @@ class DeepONet(nn.Module):
     Trunk net: codifica la coordinata di valutazione k_c.
     Output: prodotto scalare tra le due rappresentazioni latenti.
     """
-    def __init__(self, n_sensors, latent_dim=32, hidden=64):
+    def __init__(self, n_sensors, latent_dim=64, hidden=128):
         super().__init__()
         self.branch = nn.Sequential(
             nn.Linear(n_sensors, hidden), nn.Tanh(),

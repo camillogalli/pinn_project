@@ -16,6 +16,7 @@ def split_deeponet_dataset(data, train_frac=0.6, val_frac=0.2, test_frac=0.2, se
             "profiles": data["profiles"][indices],
             "k_c": data["k_c"][indices],
             "F": data["F"][indices],
+            "alphas": data["alphas"][indices],  # aggiunto
         }
 
     return {"train": subset(idx_train), "val": subset(idx_val), "test": subset(idx_test)}
