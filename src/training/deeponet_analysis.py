@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import numpy as np
 
 def validate_dF_dkc(model, profiles, alphas, k_c_values, A=1.0):
     """
@@ -41,6 +42,11 @@ def compute_sensitivity_kernel(model, profile_single, k_c_value):
     F_pred = model(profile, k_c)
     kernel = torch.autograd.grad(F_pred, profile)[0]
     return kernel.squeeze()  # (n_sensors,)
+
+def smooth_kernel(kernel, window=5):
+    """Media mobile per smussare visivamente il kernel di sensibilità."""
+    kernel_np = kernel.detach().numpy()
+    return np.convolve(kernel_np, np.ones(window) / window, mode='same')
 
 
 def plot_sensitivity_kernel(kernel, sensor_grid, k_c_value, k_min=None, save_path=None, show=True):

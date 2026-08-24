@@ -1,15 +1,18 @@
+import torch
+
 from src.models.deeponet import DeepONet
 from src.data.deeponet_dataset import build_deeponet_dataset
 from src.training.train_deeponet import (
     split_deeponet_dataset, train_deeponet, plot_deeponet_loss, plot_flux_prediction_test)
-from src.training.deeponet_analysis import (validate_dF_dkc, plot_dF_dkc_comparison, compute_sensitivity_kernel, plot_sensitivity_kernel)
+from src.training.deeponet_analysis import (validate_dF_dkc, plot_dF_dkc_comparison, compute_sensitivity_kernel,
+                                             plot_sensitivity_kernel, smooth_kernel)
 
-N_SENSORS = 50
+N_SENSORS = 20
 
 data = build_deeponet_dataset(
-    alpha_min=1.0, alpha_max=2.0, n_samples=5000, A=1.0,
+    alpha_min=1.0, alpha_max=2.0, n_samples=2000, A=1.0,
     k_min=0.1, k_max=1.0, n_sensors=N_SENSORS,
-    k_c_min=0.2, k_c_max=0.9
+    k_c_min=0.2, k_c_max=0.9, noise_std=0.02
 )
 
 splits = split_deeponet_dataset(data, train_frac=0.6, val_frac=0.2, test_frac=0.2)
@@ -35,8 +38,9 @@ k_c_fixed = 0.5
 profile_example = test_data["profiles"][0]  # un singolo profilo dal test set
 
 kernel = compute_sensitivity_kernel(model, profile_example, k_c_value=k_c_fixed)
+kernel_smoothed = smooth_kernel(kernel, window=5)
 
 plot_sensitivity_kernel(
-    kernel, data["sensor_grid"], k_c_value=k_c_fixed, k_min=0.1,
+    torch.tensor(kernel_smoothed), data["sensor_grid"], k_c_value=k_c_fixed, k_min=0.1,
     save_path="outputs/sensitivity_kernel.png", show=False
 )
