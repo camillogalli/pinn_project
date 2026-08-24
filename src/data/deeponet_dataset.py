@@ -25,7 +25,7 @@ def compute_true_flux(alphas, A, k_c, k_min):
 def build_deeponet_dataset(alpha_min, alpha_max, n_samples, A, k_min, k_max,
                             n_sensors, k_c_min, k_c_max, noise_std=0.01, seed=42):
     rng = np.random.default_rng(seed)
-    alphas = rng.uniform(alpha_min, alpha_max, size=n_samples)
+    alphas = rng.beta(a=2.0, b=0.7, size=n_samples) * (alpha_max - alpha_min) + alpha_min
     k_cs = rng.beta(a=0.5, b=2.0, size=n_samples) * (k_c_max - k_c_min) + k_c_min
 
     sensor_grid = sample_sensor_grid(k_min, k_max, n_sensors)

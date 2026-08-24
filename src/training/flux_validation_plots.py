@@ -19,8 +19,11 @@ def plot_flux_vs_alpha(model, alphas, A, k_min, k_max, sensor_grid, k_c, kz_line
     with torch.no_grad():
         F_pred = model(profiles_t, k_c_t).squeeze().numpy()
 
+    F_true = A * (k_c ** (-alphas) - k_min ** (-alphas))  # formula esatta
+
     plt.figure(figsize=(8, 5))
     plt.plot(alphas, F_pred, linewidth=2, label="DeepONet")
+    plt.plot(alphas, F_true, "--", linewidth=2, label="analitica")
     plt.axhline(0, color="black", linewidth=0.8)
 
     if kz_lines:
@@ -30,7 +33,7 @@ def plot_flux_vs_alpha(model, alphas, A, k_min, k_max, sensor_grid, k_c, kz_line
     plt.xlabel(r"pendenza spettrale $\alpha$")
     plt.ylabel(r"flusso $F$")
     plt.yscale("symlog", linthresh=1.0)  # lineare vicino a zero, log altrove
-    plt.title(f"Flusso predetto in funzione della pendenza spettrale ($k_c={k_c}$)")
+    plt.title(f"Flusso: DeepONet vs analitico ($k_c={k_c}$)")
     plt.legend()
     plt.tight_layout()
     if save_path:
