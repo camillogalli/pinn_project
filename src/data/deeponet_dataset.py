@@ -25,13 +25,13 @@ def compute_true_flux(alphas, A, k_c, k_min):
 def build_deeponet_dataset(alpha_min, alpha_max, n_samples, A, k_min, k_max,
                             n_sensors, k_c_min, k_c_max, noise_std=0.01, seed=42):
     rng = np.random.default_rng(seed)
-    alphas = rng.beta(a=2.0, b=0.7, size=n_samples) * (alpha_max - alpha_min) + alpha_min
+    alphas = rng.beta(a=2.0, b=2, size=n_samples) * (alpha_max - alpha_min) + alpha_min
     k_cs = rng.beta(a=0.5, b=2.0, size=n_samples) * (k_c_max - k_c_min) + k_c_min
 
     sensor_grid = sample_sensor_grid(k_min, k_max, n_sensors)
 
     # PRIMA: profiles = generate_power_law_profiles(alphas, A, sensor_grid)
-    profiles = generate_power_law_profiles_perturbed(alphas, A, sensor_grid, noise_std=noise_std)
+    profiles = generate_power_law_profiles_perturbed(alphas, A, sensor_grid, noise_std=noise_std, rng=rng)
 
     F_values = compute_true_flux(alphas, A, k_cs, k_min)
 
@@ -43,7 +43,9 @@ def build_deeponet_dataset(alpha_min, alpha_max, n_samples, A, k_min, k_max,
         "sensor_grid": sensor_grid,
     }
 
-def generate_power_law_profiles_perturbed(alphas, A, sensor_grid, noise_std=0.01):
+def generate_power_law_profiles_perturbed(alphas, A, sensor_grid, noise_std=0.01, rng=None):
+    if rng is None:
+        rng = np.random.default_rng()
     profiles = np.array([A * sensor_grid ** (-a) for a in alphas])
-    noise = np.random.normal(0, noise_std * np.abs(profiles))
+    noise = rng.normal(0, noise_std * np.abs(profiles))
     return profiles + noise

@@ -40,15 +40,13 @@ plot_dF_dkc_comparison(dF_learned, dF_true, save_path="outputs/dF_dkc_validation
 k_c_fixed = 0.5
 profile_example = test_data["profiles"][0]  # un singolo profilo dal test set
 
-kernel = compute_sensitivity_kernel(model, profile_example, k_c_value=k_c_fixed)
-kernel_smoothed = smooth_kernel(kernel, window=5)
+#kernel = compute_sensitivity_kernel(model, profile_example, k_c_value=k_c_fixed)
+#kernel_smoothed = smooth_kernel(kernel, window=5)
 
 #plot_sensitivity_kernel(
 #    torch.tensor(kernel_smoothed), data["sensor_grid"], k_c_value=k_c_fixed, k_min=0.1,
 #    save_path="outputs/sensitivity_kernel.png", show=False
 #)
-
-kz_lines = {"KZ energy": -1.0, "KZ action": -1.5}  # sostituisci con i valori teorici veri del tuo problema
 
 plot_flux_vs_alpha(
     model, alphas=np.linspace(-1.5, 1.5, 100), A=1.0,
