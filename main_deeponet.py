@@ -21,7 +21,13 @@ data = build_deeponet_dataset(
 splits = split_deeponet_dataset(data, train_frac=0.7, val_frac=0.2, test_frac=0.1)
 
 model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
-model, history = train_deeponet(model, splits, epochs=6000, lr=1e-3)
+
+#model, history = train_deeponet(model, splits, epochs=6000, lr=1e-3)
+model, history = train_deeponet(
+    model, splits, epochs=6000, lr=1e-3,
+    sensor_grid=data["sensor_grid"], A=1.0,
+    k_c_min=0.2, k_c_max=0.9, lambda_bc=1.0
+)
 
 plot_deeponet_loss(history, save_path="outputs/deeponet_loss.png", show=False)
 plot_flux_prediction_test(model, splits["test"], save_path="outputs/deeponet_test.png", show=False)
