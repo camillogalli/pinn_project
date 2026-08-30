@@ -7,7 +7,7 @@ from src.training.train_deeponet import (
     split_deeponet_dataset, train_deeponet, plot_deeponet_loss, plot_flux_prediction_test)
 from src.training.deeponet_analysis import (validate_dF_dkc, plot_dF_dkc_comparison, compute_sensitivity_kernel,
                                              plot_sensitivity_kernel, smooth_kernel)
-from src.training.flux_validation_plots import plot_flux_vs_alpha
+from src.training.flux_validation_plots import (plot_flux_vs_alpha, plot_flux_vs_k)
 from src.utils import config
 
 N_SENSORS = 20
@@ -59,4 +59,11 @@ plot_flux_vs_alpha(
     k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
     k_c=0.5, kz_lines={"equipartizione (α=0)": 0.0},
     save_path="outputs/flux_vs_alpha.png", show=False
+)
+
+plot_flux_vs_k(
+    model, alphas=[0.5, 1.0, 1.5, 2.0], A=1.0,
+    k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
+    k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
+    save_path="outputs/flux_vs_k.png", show=False
 )

@@ -41,3 +41,37 @@ def plot_flux_vs_alpha(model, alphas, A, k_min, k_max, sensor_grid, k_c, kz_line
     if show:
         plt.show()
     plt.close()
+
+def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, save_path=None, show=True):
+    """
+    Mostra il flusso F in funzione di k_c, per uno o più profili n_k
+    (uno per ciascun alpha in alphas), sovrapposti.
+    """
+    k_c_values = np.asarray(k_c_values)
+
+    plt.figure(figsize=(8, 5))
+
+    for a in alphas:
+        profile = A * sensor_grid ** (-a)
+        profile_t = torch.tensor(profile, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
+        k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
+
+        with torch.no_grad():
+            F_pred = model(profile_t, k_c_t).squeeze().numpy()
+
+        F_true = A * (k_c_values ** (-a) - k_min ** (-a))
+
+        plt.plot(k_c_values, F_pred, linewidth=2, label=fr"DeepONet, $\alpha={a}$")
+        plt.plot(k_c_values, F_true, "--", linewidth=1.5, label=fr"analitica, $\alpha={a}$")
+
+    plt.axhline(0, color="black", linewidth=0.8)
+    plt.xlabel(r"$k_c$")
+    plt.ylabel(r"flusso $F$")
+    plt.title("Flusso in funzione di $k_c$, per diversi profili spettrali")
+    plt.legend()
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    plt.close()
