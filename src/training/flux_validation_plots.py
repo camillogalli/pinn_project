@@ -68,7 +68,7 @@ def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, save
     plt.xlabel(r"$k_c$")
     plt.ylabel(r"flusso $F$")
     plt.title("Flusso in funzione di $k_c$, per diversi profili spettrali")
-    plt.legend()
+    plt.legend(loc="center left", bbox_to_anchor=(0.8, 0.4))
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path, dpi=150)
