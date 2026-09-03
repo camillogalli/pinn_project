@@ -15,10 +15,14 @@ class DeepONet(nn.Module):
         self.branch = nn.Sequential(
             nn.Linear(n_sensors, hidden), nn.Tanh(),
             nn.Linear(hidden, hidden), nn.Tanh(),
+            nn.Linear(hidden, hidden), nn.Tanh(),
+            nn.Linear(hidden, hidden), nn.Tanh(),
             nn.Linear(hidden, latent_dim)
         )
         self.trunk = nn.Sequential(
             nn.Linear(1, hidden), nn.Tanh(),
+            nn.Linear(hidden, hidden), nn.Tanh(),
+            nn.Linear(hidden, hidden), nn.Tanh(),
             nn.Linear(hidden, hidden), nn.Tanh(),
             nn.Linear(hidden, latent_dim)
         )

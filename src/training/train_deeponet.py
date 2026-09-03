@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 
-def split_deeponet_dataset(data, train_frac=0.7, val_frac=0.2, test_frac=0.1, seed=42):
+def split_deeponet_dataset(data, train_frac=0.6, val_frac=0.2, test_frac=0.2, seed=42):
     n = data["profiles"].shape[0]
     idx = torch.arange(n)
 
@@ -64,7 +64,7 @@ def train_deeponet(model, splits, epochs=6000, lr=1e-3, device="cpu"):
     return model, history
 """
 
-def train_deeponet(model, splits, epochs=6000, lr=1e-3, device="cpu",
+def train_deeponet(model, splits, epochs=8000, lr=1e-3, device="cpu",
                     sensor_grid=None, A=1.0, k_c_min=0.2, k_c_max=0.9,
                     lambda_bc=1.0, n_bc_points=50):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)

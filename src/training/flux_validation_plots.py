@@ -42,33 +42,51 @@ def plot_flux_vs_alpha(model, alphas, A, k_min, k_max, sensor_grid, k_c, kz_line
         plt.show()
     plt.close()
 
-def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, save_path=None, show=True):
+def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, alpha_highlight= -5/3, save_path=None, show=True):
     """
     Mostra il flusso F in funzione di k_c, per uno o più profili n_k
     (uno per ciascun alpha in alphas), sovrapposti.
     """
     k_c_values = np.asarray(k_c_values)
+    k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
 
-    plt.figure(figsize=(8, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
     for a in alphas:
         profile = A * sensor_grid ** (-a)
         profile_t = torch.tensor(profile, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
-        k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
+        
 
         with torch.no_grad():
             F_pred = model(profile_t, k_c_t).squeeze().numpy()
 
         F_true = A * (k_c_values ** (-a) - k_min ** (-a))
 
-        plt.plot(k_c_values, F_pred, linewidth=2, label=fr"DeepONet, $\alpha={a}$")
-        plt.plot(k_c_values, F_true, "--", linewidth=1.5, label=fr"analitica, $\alpha={a}$")
+        ax1.plot(k_c_values, F_pred, linewidth=2, label=fr"DeepONet, $\alpha={a}$")
+        ax1.plot(k_c_values, F_true, "--", linewidth=1.5, label=fr"analitica, $\alpha={a}$")
 
-    plt.axhline(0, color="black", linewidth=0.8)
-    plt.xlabel(r"$k_c$")
-    plt.ylabel(r"flusso $F$")
-    plt.title("Flusso in funzione di $k_c$, per diversi profili spettrali")
-    plt.legend(loc="center left", bbox_to_anchor=(0.8, 0.4))
+    ax1.axhline(0, color="black", linewidth=0.8)
+    ax1.set_xlabel(r"$k_c$")
+    ax1.set_ylabel(r"flusso $F$")
+    ax1.set_title("Flusso in funzione di $k_c$, per diversi profili spettrali")
+    ax1.legend(loc="center left", bbox_to_anchor=(0.8, 0.4))
+
+    profile_h = A * sensor_grid ** (-alpha_highlight)
+    profile_h_t = torch.tensor(profile_h, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
+
+    with torch.no_grad():
+        F_pred_h = model(profile_h_t, k_c_t).squeeze().numpy()
+
+    F_true_h = A * (k_c_values ** (-alpha_highlight) - k_min ** (-alpha_highlight))
+
+    ax2.plot(k_c_values, F_pred_h, linewidth=2, color="steelblue", label="DeepONet")
+    ax2.plot(k_c_values, F_true_h, "--", linewidth=2, color="darkorange", label="analitica")
+    ax2.axhline(0, color="black", linewidth=0.8)
+    ax2.set_xlabel(r"$k_c$")
+    ax2.set_ylabel(r"flusso $F$")
+    ax2.set_title(fr"Flusso vs $k_c$, $\alpha={alpha_highlight:.3f}$")
+    ax2.legend()
+
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path, dpi=150)
