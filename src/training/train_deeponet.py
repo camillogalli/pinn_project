@@ -21,51 +21,8 @@ def split_deeponet_dataset(data, train_frac=0.6, val_frac=0.2, test_frac=0.2, se
 
     return {"train": subset(idx_train), "val": subset(idx_val), "test": subset(idx_test)}
 
-"""""
-def train_deeponet(model, splits, epochs=6000, lr=1e-3, device="cpu"):
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-    loss_fn = torch.nn.MSELoss()
-
-    train_data = splits["train"]
-    val_data = splits["val"]
-
-    history = {"train_loss": [], "val_loss": []}
-    best_val = float("inf")
-    best_state = None
-
-    for epoch in range(epochs):
-        model.train()
-        optimizer.zero_grad()
-        F_pred = model(train_data["profiles"], train_data["k_c"])
-
-        loss = loss_fn(F_pred, train_data["F"])
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        optimizer.step()
-        scheduler.step()
-
-        model.eval()
-        with torch.no_grad():
-            F_val_pred = model(val_data["profiles"], val_data["k_c"])
-            val_loss = loss_fn(F_val_pred, val_data["F"])
-
-        history["train_loss"].append(loss.item())
-        history["val_loss"].append(val_loss.item())
-
-        if val_loss.item() < best_val:
-            best_val = val_loss.item()
-            best_state = {k: v.clone() for k, v in model.state_dict().items()}
-
-        if epoch % 400 == 0 or epoch == epochs - 1:
-            print(f"Epoch {epoch:5d} | train_loss: {loss.item():.6e} | val_loss: {val_loss.item():.6e}")
-
-    model.load_state_dict(best_state)
-    return model, history
-"""
-
-def train_deeponet(model, splits, epochs=8000, lr=1e-3, device="cpu",
-                    sensor_grid=None, A=1.0, k_c_min=0.2, k_c_max=0.9,
+def train_deeponet(model, splits, epochs=6000, lr=1e-3, device="cpu",
+                    sensor_grid=None, A=1.0, k_c_min=0.1, k_c_max=1.0,
                     lambda_bc=1.0, n_bc_points=50):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)

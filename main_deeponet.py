@@ -15,7 +15,7 @@ N_SENSORS = 200
 data = build_deeponet_dataset(
     alpha_min=-3, alpha_max=3.0, n_samples=25000, A=1.0,   # range ampliato, include 0
     k_min=config.K_MIN, k_max=config.K_MAX, n_sensors=N_SENSORS,
-    k_c_min=0.2, k_c_max=0.9, noise_std=0.01
+    k_c_min=0.1, k_c_max=1.0, noise_std=0.01
 )
 
 splits = split_deeponet_dataset(data, train_frac=0.6, val_frac=0.2, test_frac=0.2)
@@ -24,9 +24,9 @@ model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
 
 #model, history = train_deeponet(model, splits, epochs=6000, lr=1e-3)
 model, history = train_deeponet(
-    model, splits, epochs=8000, lr=1e-3,
+    model, splits, epochs=6000, lr=1e-3,
     sensor_grid=data["sensor_grid"], A=1.0,
-    k_c_min=0.2, k_c_max=0.9, lambda_bc=1.0
+    k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0
 )
 
 plot_deeponet_loss(history, save_path="outputs/deeponet_loss.png", show=False)
@@ -36,7 +36,7 @@ plot_flux_prediction_test(model, splits["test"], save_path="outputs/deeponet_tes
 test_data = splits["test"]
 
 # servono anche gli alpha corrispondenti al test set, per il confronto analitico —
-# vedi nota sotto: build_deeponet_dataset non li restituisce ancora esplicitamente
+# build_deeponet_dataset non li restituisce ancora esplicitamente
 dF_learned, dF_true = validate_dF_dkc(
     model, test_data["profiles"], test_data["alphas"], test_data["k_c"], A=1.0
 )
@@ -65,6 +65,6 @@ plot_flux_vs_k(
     model, alphas=[0.5, 1.0, 1.5, 2.0], A=1.0,
     k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
     k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
-    alpha_highlight=-5/3,
+    alpha_highlight=5/3,
     save_path="outputs/flux_vs_k.png", show=False
 )

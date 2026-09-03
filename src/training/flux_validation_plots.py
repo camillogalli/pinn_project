@@ -42,7 +42,7 @@ def plot_flux_vs_alpha(model, alphas, A, k_min, k_max, sensor_grid, k_c, kz_line
         plt.show()
     plt.close()
 
-def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, alpha_highlight= -5/3, save_path=None, show=True):
+def plot_flux_vs_k(model, alphas, A, k_min, k_max, sensor_grid, k_c_values, alpha_highlight= 5/3, save_path=None, show=True):
     """
     Mostra il flusso F in funzione di k_c, per uno o più profili n_k
     (uno per ciascun alpha in alphas), sovrapposti.
