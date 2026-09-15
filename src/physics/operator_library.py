@@ -48,57 +48,57 @@ def analytical_operator_library(alphas, A, k_max, k_min):
     F_true = n(k_max, alphas) - n(k_min, alphas)
     return library, F_true
 
-def fit_operators_at_fixed_alpha(model, sensor_grid, alphas, A, k_c_values, k_min, include_d2=True):
+def fit_operators_at_fixed_alpha(model, sensor_grid, alpha, A, k_c_values, k_min, include_d2=True):
     """
-    Per un alpha fissato, fitta F(k_c) come combinazione lineare di
-    n_k(k_c), dn_k/dk(k_c), [d2n_k/dk2(k_c)], con intercetta.
+    Per un SINGOLO alpha fissato, fitta F(k_c) (predetto dal DeepONet) come
+    combinazione lineare di n_k(k_c), dn_k/dk(k_c), [d2n_k/dk2(k_c)], con intercetta.
     """
-
     k_c_values = np.asarray(k_c_values)
 
-    n_vals = A * k_c_values ** (-alphas)
-    dn_vals = -alphas * A * k_c_values ** (-alphas - 1)
-    d2n_vals = alphas * (alphas + 1) * A * k_c_values ** (-alphas - 2)
+    # operatori analitici, valutati in funzione di k_c, per questo singolo alpha
+    n_vals = A * k_c_values ** (-alpha)
+    dn_vals = -alpha * A * k_c_values ** (-alpha - 1)
+    d2n_vals = alpha * (alpha + 1) * A * k_c_values ** (-alpha - 2)
 
-    F_true = A * (k_c_values ** (-alphas) - k_min ** (-alphas))
-
-    alphas = np.asarray(alphas)
-    profiles = np.array([A * sensor_grid ** (-a) for a in alphas])
-    profiles_t = torch.tensor(profiles, dtype=torch.float32)
-    k_c_t = torch.full((len(alphas), 1), k_c_values, dtype=torch.float32)
+    # profilo n_k(.) per QUESTO alpha, campionato sui sensori — un solo profilo,
+    # ripetuto una volta per ciascun k_c_value (input del branch net è costante)
+    profile = A * sensor_grid ** (-alpha)
+    profile_t = torch.tensor(profile, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
+    k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
 
     with torch.no_grad():
-        F_pred = model(profiles_t, k_c_t).squeeze().numpy()
+        F_pred = model(profile_t, k_c_t).squeeze().numpy()
 
     features = [n_vals, dn_vals]
     if include_d2:
         features.append(d2n_vals)
     X = np.stack(features, axis=1)
 
-    reg = LinearRegression(fit_intercept=True)  # <-- intercetta essenziale
+    reg = LinearRegression(fit_intercept=True)
     reg.fit(X, F_pred)
-    #reg.fit(X, F_pred)
 
     return reg.coef_, reg.intercept_
 
 def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min, save_path=None, show=True):
-    a_vals, b_vals, c_vals = [], [], []
+    a_vals, b_vals, c_vals, intercepts = [], [], [], []
 
-    for alphas in alphas:
-        coefs = fit_operators_at_fixed_alpha(model, sensor_grid, alphas, A, k_c_values, k_min)
-        a_vals.append(coefs[0])
-        b_vals.append(coefs[1])
-        c_vals.append(coefs[2])
+    for alpha in alphas:   # variabile rinominata: non sovrascrive più "alphas"
+        coef, intercept = fit_operators_at_fixed_alpha(model, sensor_grid, alpha, A, k_c_values, k_min)
+        a_vals.append(coef[0])
+        b_vals.append(coef[1])
+        c_vals.append(coef[2])
+        intercepts.append(intercept)
 
     plt.figure(figsize=(8, 5))
     plt.plot(alphas, a_vals, "o-", label=r"$a(\alpha)$ — coeff. su $n_k$")
     plt.plot(alphas, b_vals, "o-", label=r"$b(\alpha)$ — coeff. su $\partial_k n_k$")
     plt.plot(alphas, c_vals, "o-", label=r"$c(\alpha)$ — coeff. su $\partial_k^2 n_k$")
+    plt.plot(alphas, intercepts, "o-", label=r"intercetta$(\alpha)$")
     plt.axhline(0, color="black", linewidth=0.6)
     plt.axhline(1, color="gray", linewidth=0.6, linestyle=":")
     plt.xlabel(r"$\alpha$")
     plt.ylabel("coefficiente")
-    plt.title("Coefficienti del fit locale, in funzione di $\\alpha$")
+    plt.title("Coefficienti del fit locale (su F predetto dal DeepONet), in funzione di $\\alpha$")
     plt.legend()
     plt.tight_layout()
     if save_path:
