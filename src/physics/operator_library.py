@@ -1,5 +1,7 @@
 import torch
-
+from sklearn.linear_model import LinearRegression
+import numpy as np
+import matplotlib.pyplot as plt
 
 def _build_operators_at_point(model, t, k_point):
     """Operatori differenziali di n_k (rete allenata) in un punto k_point, per un batch di t."""
@@ -45,3 +47,53 @@ def analytical_operator_library(alphas, A, k_max, k_min):
     }
     F_true = n(k_max, alphas) - n(k_min, alphas)
     return library, F_true
+
+def fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min, include_d2=True):
+    """
+    Per un alpha fissato, fitta F(k_c) come combinazione lineare di
+    n_k(k_c), dn_k/dk(k_c), [d2n_k/dk2(k_c)], con intercetta.
+    """
+
+    k_c_values = np.asarray(k_c_values)
+
+    n_vals = A * k_c_values ** (-alpha)
+    dn_vals = -alpha * A * k_c_values ** (-alpha - 1)
+    d2n_vals = alpha * (alpha + 1) * A * k_c_values ** (-alpha - 2)
+
+    F_true = A * (k_c_values ** (-alpha) - k_min ** (-alpha))
+
+    features = [n_vals, dn_vals]
+    if include_d2:
+        features.append(d2n_vals)
+    X = np.stack(features, axis=1)
+
+    reg = LinearRegression(fit_intercept=True)  # <-- intercetta essenziale
+    reg.fit(X, F_true)
+
+    return reg.coef_, reg.intercept_
+
+def plot_coefficients_vs_alpha(alphas, A, k_c_values, k_min, save_path=None, show=True):
+    a_vals, b_vals, c_vals = [], [], []
+
+    for alpha in alphas:
+        coefs, intercept = fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min)
+        a_vals.append(coefs[0])
+        b_vals.append(coefs[1])
+        c_vals.append(coefs[2])
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(alphas, a_vals, "o-", label=r"$a(\alpha)$ — coeff. su $n_k$")
+    plt.plot(alphas, b_vals, "o-", label=r"$b(\alpha)$ — coeff. su $\partial_k n_k$")
+    plt.plot(alphas, c_vals, "o-", label=r"$c(\alpha)$ — coeff. su $\partial_k^2 n_k$")
+    plt.axhline(0, color="black", linewidth=0.6)
+    plt.axhline(1, color="gray", linewidth=0.6, linestyle=":")
+    plt.xlabel(r"$\alpha$")
+    plt.ylabel("coefficiente")
+    plt.title("Coefficienti del fit locale, in funzione di $\\alpha$")
+    plt.legend()
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    plt.close()

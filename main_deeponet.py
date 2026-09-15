@@ -9,6 +9,7 @@ from src.training.deeponet_analysis import (validate_dF_dkc, plot_dF_dkc_compari
                                              plot_sensitivity_kernel, smooth_kernel)
 from src.training.flux_validation_plots import (plot_flux_vs_alpha, plot_flux_vs_k)
 from src.utils import config
+from src.physics.operator_library import fit_operators_at_fixed_alpha, plot_coefficients_vs_alpha
 
 N_SENSORS = 200
 
@@ -67,4 +68,10 @@ plot_flux_vs_k(
     k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
     alpha_highlight=5/3,
     save_path="outputs/flux_vs_k.png", show=False
+)
+
+plot_coefficients_vs_alpha(
+    alphas=[0.5, 1.0, 1.5, 2.0], A = 1.0,
+    k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
+    k_min=config.K_MIN, save_path="outputs/coefficients_vs_alpha.png", show=False
 )
