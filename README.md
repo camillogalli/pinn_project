@@ -1,4 +1,4 @@
-**Analyzing Wave Turbulence fluxes with a combined PINN/DeepONet framework**
+**Modelling Wave Turbulence fluxes with a combined PINN/DeepONet framework**
 
 
 This is a physics informed approach to Wave Turbulennce theory; where we create a neural network capable of learning fluxes, starting from the wave kinetic equation of a given physical model.

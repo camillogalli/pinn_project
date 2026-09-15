@@ -48,7 +48,7 @@ def analytical_operator_library(alphas, A, k_max, k_min):
     F_true = n(k_max, alphas) - n(k_min, alphas)
     return library, F_true
 
-def fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min, include_d2=True):
+def fit_operators_at_fixed_alpha(model, sensor_grid, alphas, A, k_c_values, k_min, include_d2=True):
     """
     Per un alpha fissato, fitta F(k_c) come combinazione lineare di
     n_k(k_c), dn_k/dk(k_c), [d2n_k/dk2(k_c)], con intercetta.
@@ -56,11 +56,19 @@ def fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min, include_d2=True):
 
     k_c_values = np.asarray(k_c_values)
 
-    n_vals = A * k_c_values ** (-alpha)
-    dn_vals = -alpha * A * k_c_values ** (-alpha - 1)
-    d2n_vals = alpha * (alpha + 1) * A * k_c_values ** (-alpha - 2)
+    n_vals = A * k_c_values ** (-alphas)
+    dn_vals = -alphas * A * k_c_values ** (-alphas - 1)
+    d2n_vals = alphas * (alphas + 1) * A * k_c_values ** (-alphas - 2)
 
-    F_true = A * (k_c_values ** (-alpha) - k_min ** (-alpha))
+    F_true = A * (k_c_values ** (-alphas) - k_min ** (-alphas))
+
+    alphas = np.asarray(alphas)
+    profiles = np.array([A * sensor_grid ** (-a) for a in alphas])
+    profiles_t = torch.tensor(profiles, dtype=torch.float32)
+    k_c_t = torch.full((len(alphas), 1), k_c_values, dtype=torch.float32)
+
+    with torch.no_grad():
+        F_pred = model(profiles_t, k_c_t).squeeze().numpy()
 
     features = [n_vals, dn_vals]
     if include_d2:
@@ -68,15 +76,16 @@ def fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min, include_d2=True):
     X = np.stack(features, axis=1)
 
     reg = LinearRegression(fit_intercept=True)  # <-- intercetta essenziale
-    reg.fit(X, F_true)
+    reg.fit(X, F_pred)
+    #reg.fit(X, F_pred)
 
     return reg.coef_, reg.intercept_
 
-def plot_coefficients_vs_alpha(alphas, A, k_c_values, k_min, save_path=None, show=True):
+def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min, save_path=None, show=True):
     a_vals, b_vals, c_vals = [], [], []
 
-    for alpha in alphas:
-        coefs, intercept = fit_operators_at_fixed_alpha(alpha, A, k_c_values, k_min)
+    for alphas in alphas:
+        coefs = fit_operators_at_fixed_alpha(model, sensor_grid, alphas, A, k_c_values, k_min)
         a_vals.append(coefs[0])
         b_vals.append(coefs[1])
         c_vals.append(coefs[2])
