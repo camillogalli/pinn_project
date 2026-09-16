@@ -69,40 +69,56 @@ def fit_operators_at_fixed_alpha(model, sensor_grid, alpha, A, k_c_values, k_min
     with torch.no_grad():
         F_pred = model(profile_t, k_c_t).squeeze().numpy()
 
+    F_exact = A * (k_c_values ** (-alpha) - k_min ** (-alpha))
+
     features = [n_vals, dn_vals]
     if include_d2:
         features.append(d2n_vals)
     X = np.stack(features, axis=1)
 
-    reg = LinearRegression(fit_intercept=True)
-    reg.fit(X, F_pred)
+    reg_pred = LinearRegression(fit_intercept=True).fit(X, F_pred)
+    reg_exact = LinearRegression(fit_intercept=True).fit(X, F_exact)
 
-    return reg.coef_, reg.intercept_
+    return (reg_pred.coef_, reg_pred.intercept_), (reg_exact.coef_, reg_exact.intercept_)
 
 def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min, save_path=None, show=True):
-    a_vals, b_vals, c_vals, intercepts = [], [], [], []
+    alphas = np.asarray(alphas)
 
-    for alpha in alphas:   # variabile rinominata: non sovrascrive più "alphas"
-        coef, intercept = fit_operators_at_fixed_alpha(model, sensor_grid, alpha, A, k_c_values, k_min)
-        a_vals.append(coef[0])
-        b_vals.append(coef[1])
-        c_vals.append(coef[2])
-        intercepts.append(intercept)
+    res = {"pred": {"a": [], "b": [], "c": [], "int": []},
+           "exact": {"a": [], "b": [], "c": [], "int": []}}
 
-    plt.figure(figsize=(8, 5))
-    plt.plot(alphas, a_vals, "o-", label=r"$a(\alpha)$ — coeff. su $n_k$")
-    plt.plot(alphas, b_vals, "o-", label=r"$b(\alpha)$ — coeff. su $\partial_k n_k$")
-    plt.plot(alphas, c_vals, "o-", label=r"$c(\alpha)$ — coeff. su $\partial_k^2 n_k$")
-    plt.plot(alphas, intercepts, "o-", label=r"intercetta$(\alpha)$")
-    plt.axhline(0, color="black", linewidth=0.6)
-    plt.axhline(1, color="gray", linewidth=0.6, linestyle=":")
-    plt.xlabel(r"$\alpha$")
-    plt.ylabel("coefficiente")
-    plt.title("Coefficienti del fit locale (su F predetto dal DeepONet), in funzione di $\\alpha$")
-    plt.legend()
+    for alpha in alphas:
+        (coef_p, int_p), (coef_e, int_e) = fit_operators_at_fixed_alpha(
+            model, sensor_grid, alpha, A, k_c_values, k_min
+        )
+        for key, coef, inter in (("pred", coef_p, int_p), ("exact", coef_e, int_e)):
+            res[key]["a"].append(coef[0])
+            res[key]["b"].append(coef[1])
+            res[key]["c"].append(coef[2])
+            res[key]["int"].append(inter)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
+
+    for ax, key, titolo in (
+        (ax1, "pred", "Fit su $F$ predetto (DeepONet)"),
+        (ax2, "exact", "Fit su $F$ analitico"),
+    ):
+        ax.plot(alphas, res[key]["a"], "o-", markersize=3, label=r"$a(\alpha)$ — $n_k$")
+        ax.plot(alphas, res[key]["b"], "o-", markersize=3, label=r"$b(\alpha)$ — $\partial_k n_k$")
+        ax.plot(alphas, res[key]["c"], "o-", markersize=3, label=r"$c(\alpha)$ — $\partial_k^2 n_k$")
+        ax.plot(alphas, res[key]["int"], "o-", markersize=3, label=r"intercetta$(\alpha)$")
+        ax.axhline(0, color="black", linewidth=0.6)
+        ax.axhline(1, color="gray", linewidth=0.6, linestyle=":")
+        ax.set_xlabel(r"$\alpha$")
+        ax.set_title(titolo)
+
+    ax1.set_ylabel("coefficiente")
+    ax1.set_ylim(bottom=-12)
+    ax2.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
+
     plt.tight_layout()
     if save_path:
-        plt.savefig(save_path, dpi=150)
+        plt.savefig(save_path, dpi=150, bbox_inches="tight")
     if show:
         plt.show()
     plt.close()

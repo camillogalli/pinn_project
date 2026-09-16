@@ -72,7 +72,7 @@ plot_flux_vs_k(
 
 plot_coefficients_vs_alpha(
     model, sensor_grid=data["sensor_grid"],
-    alphas=np.linspace(-1.5, 1.5, 100), A = 1.0,
+    alphas=np.linspace(-1.5, 1.5, 60), A = 1.0,
     k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
     k_min=config.K_MIN, save_path="outputs/coefficients_vs_alpha.png", show=False
 )
