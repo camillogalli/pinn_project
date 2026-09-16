@@ -71,9 +71,9 @@ def fit_operators_at_fixed_alpha(model, sensor_grid, alpha, A, k_c_values, k_min
 
     F_exact = A * (k_c_values ** (-alpha) - k_min ** (-alpha))
 
-    features = [n_vals, dn_vals]
-    if include_d2:
-        features.append(d2n_vals)
+    features = [n_vals] #dn_vals]
+    #if include_d2:
+    #    features.append(d2n_vals)
     X = np.stack(features, axis=1)
 
     reg_pred = LinearRegression(fit_intercept=True).fit(X, F_pred)
@@ -93,8 +93,8 @@ def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min,
         )
         for key, coef, inter in (("pred", coef_p, int_p), ("exact", coef_e, int_e)):
             res[key]["a"].append(coef[0])
-            res[key]["b"].append(coef[1])
-            res[key]["c"].append(coef[2])
+            #res[key]["b"].append(coef[1])
+            #res[key]["c"].append(coef[2])
             res[key]["int"].append(inter)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
@@ -104,8 +104,8 @@ def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min,
         (ax2, "exact", "Fit su $F$ analitico"),
     ):
         ax.plot(alphas, res[key]["a"], "o-", markersize=3, label=r"$a(\alpha)$ — $n_k$")
-        ax.plot(alphas, res[key]["b"], "o-", markersize=3, label=r"$b(\alpha)$ — $\partial_k n_k$")
-        ax.plot(alphas, res[key]["c"], "o-", markersize=3, label=r"$c(\alpha)$ — $\partial_k^2 n_k$")
+        #ax.plot(alphas, res[key]["b"], "o-", markersize=3, label=r"$b(\alpha)$ — $\partial_k n_k$")
+        #ax.plot(alphas, res[key]["c"], "o-", markersize=3, label=r"$c(\alpha)$ — $\partial_k^2 n_k$")
         ax.plot(alphas, res[key]["int"], "o-", markersize=3, label=r"intercetta$(\alpha)$")
         ax.axhline(0, color="black", linewidth=0.6)
         ax.axhline(1, color="gray", linewidth=0.6, linestyle=":")
