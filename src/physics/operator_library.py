@@ -113,7 +113,7 @@ def plot_coefficients_vs_alpha(model, sensor_grid, alphas, A, k_c_values, k_min,
         ax.set_title(titolo)
 
     ax1.set_ylabel("coefficiente")
-    ax1.set_ylim(bottom=-12)
+    ax1.set_ylim(bottom=-8, top=8)
     ax2.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
 
     plt.tight_layout()
