@@ -16,19 +16,22 @@ model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
 model.load_state_dict(torch.load("weights/deeponet_weights.pt"))
 model.eval()
 
-k_c_values = np.linspace(0.1, 1.0, 100)
-alpha = 0.1  # esempio
+alphas_test = np.linspace(-1.5, 1.5, 31)  # copre l'intero range che hai usato nei plot precedenti
+k_c_values = np.linspace(0.2, 0.9, 100)
 
-n_vals = 1.0 * k_c_values ** (-alpha)
-profile = 1.0 * data["sensor_grid"] ** (-alpha)
-profile_t = torch.tensor(profile, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
-k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
+print(f"{'alpha':>8} | {'segnale':>10} | {'rumore':>10} | {'SNR':>10}")
+for alpha in alphas_test:
+    profile = 1.0 * data["sensor_grid"] ** (-alpha)
+    profile_t = torch.tensor(profile, dtype=torch.float32).unsqueeze(0).repeat(len(k_c_values), 1)
+    k_c_t = torch.tensor(k_c_values, dtype=torch.float32).reshape(-1, 1)
 
-with torch.no_grad():
-    F_pred = model(profile_t, k_c_t).squeeze().numpy()
+    with torch.no_grad():
+        F_pred = model(profile_t, k_c_t).squeeze().numpy()
 
-F_true = 1.0 * (k_c_values ** (-alpha) - config.K_MIN ** (-alpha))
+    F_true = 1.0 * (k_c_values ** (-alpha) - config.K_MIN ** (-alpha))
 
-signal_amplitude = F_true.max() - F_true.min()
-noise_estimate = np.std(F_pred - F_true)
-print(f"alpha={alpha}: segnale={signal_amplitude:.4f}, rumore stimato={noise_estimate:.4f}, " f"SNR={signal_amplitude/noise_estimate:.2f}")
+    signal_amplitude = F_true.max() - F_true.min()
+    noise_estimate = np.std(F_pred - F_true)
+    snr = signal_amplitude / (noise_estimate + 1e-12)   # eps per evitare divisione per zero esatto
+
+    print(f"{alpha:8.3f} | {signal_amplitude:10.4f} | {noise_estimate:10.4f} | {snr:10.2f}")
