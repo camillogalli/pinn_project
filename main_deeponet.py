@@ -30,6 +30,8 @@ model, history = train_deeponet(
     k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0
 )
 
+torch.save(model.state_dict(), "weights/deeponet_weights.pt")
+
 plot_deeponet_loss(history, save_path="outputs/deeponet_loss.png", show=False)
 plot_flux_prediction_test(model, splits["test"], save_path="outputs/deeponet_test.png", show=False)
 
@@ -65,7 +67,7 @@ plot_flux_vs_alpha(
 plot_flux_vs_k(
     model, alphas=[0.5, 1.0, 1.5, 2.0], A=1.0,
     k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
-    k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
+    k_c_values=np.linspace(config.K_MIN, config.K_MAX, 100),
     alpha_highlight=5/3,
     save_path="outputs/flux_vs_k.png", show=False
 )
@@ -73,6 +75,6 @@ plot_flux_vs_k(
 plot_coefficients_vs_alpha(
     model, sensor_grid=data["sensor_grid"],
     alphas=np.linspace(-1.5, 1.5, 60), A = 1.0,
-    k_c_values=np.linspace(config.K_MIN + 0.05, config.K_MAX - 0.05, 100),
+    k_c_values=np.linspace(config.K_MIN, config.K_MAX, 100),
     k_min=config.K_MIN, save_path="outputs/coefficients_vs_alpha.png", show=False
 )
