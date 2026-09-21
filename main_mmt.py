@@ -42,16 +42,16 @@ k_c_fixed = 0.5
 profile_example = test_data["profiles"][0]
 
 plot_flux_vs_p_mmt(
-    model, ps=np.linspace(-2, 0.4, 100), A=1.0, beta=0.25,
-    k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
-    N = 300, IntN = 200, kz_lines = None, ps_true = None,
+    model, ps=np.linspace(-2, 0.4, 100), A=1.0, beta=0.25, k_c = 1,
+    k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
+    N = 300, IntN = 200, kz_lines = None, ps_true = np.linspace(-2, 0.4, 200),
     save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
 )
 
-plot_flux_vs_k_mmt(
-    model, ps=np.linspace(-2, 0.4, 100), A=1.0, beta=0.25,
-    k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
-    k_c_values=np.linspace(0.1, 1.0, 100), k_c_values_true=None,
-    p_highlight=-5/3, N = 300, IntN = 200,
-    save_path="outputs_mmt/flux_vs_k_mmt.png", show=False
-)
+#plot_flux_vs_k_mmt(
+#    model, ps=np.linspace(-2, 0.4, 100), A=1.0, beta=0.25,
+#    k_min=config.K_MIN, k_max=config.K_MAX, sensor_grid=data["sensor_grid"],
+#    k_c_values=np.linspace(0.1, 1.0, 100), k_c_values_true=None,
+#    p_highlight=-5/3, N = 300, IntN = 200,
+#    save_path="outputs_mmt/flux_vs_k_mmt.png", show=False
+#)
