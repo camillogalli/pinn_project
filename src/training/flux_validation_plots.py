@@ -193,7 +193,7 @@ def plot_flux_vs_p_mmt(model, ps, A, beta, k_min, sensor_grid, k_c,
 
     plt.figure(figsize=(8, 5))
     plt.plot(ps, F_pred, linewidth=2, label="DeepONet")
-    plt.plot(ps_true, F_true, "o--", linewidth=1, markersize=4, label="MMT solver")
+    plt.plot(ps_true, F_true, "--", linewidth=1, markersize=4, label="MMT solver")
     plt.axhline(0, color="black", linewidth=0.8)
 
     if kz_lines:
@@ -202,7 +202,7 @@ def plot_flux_vs_p_mmt(model, ps, A, beta, k_min, sensor_grid, k_c,
 
     plt.xlabel(r"pendenza spettrale $p$")
     plt.ylabel(r"flusso $F$")
-    plt.yscale("symlog", linthresh=1.0)
+    #plt.yscale("symlog", linthresh=1.0)
     plt.title(f"Flusso: DeepONet vs solver MMT ($k_c={k_c}$)")
     plt.legend()
     plt.tight_layout()
