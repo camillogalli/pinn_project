@@ -3,8 +3,9 @@ import numpy as np
 
 from src.models.deeponet import DeepONet
 from src.data.deeponet_dataset import build_deeponet_dataset_mmt
+from src.training.train_deeponet_mmt import (split_deeponet_dataset_mmt, train_deeponet_mmt)
 from src.training.train_deeponet import (
-    split_deeponet_dataset_mmt, train_deeponet_mmt, plot_deeponet_loss, plot_flux_prediction_test)
+     plot_deeponet_loss, plot_flux_prediction_test)
 from src.training.deeponet_analysis import (validate_dF_dkc, plot_dF_dkc_comparison)
 from src.training.flux_validation_plots import (plot_flux_vs_p_mmt, plot_flux_vs_k_mmt)
 from src.utils import config
