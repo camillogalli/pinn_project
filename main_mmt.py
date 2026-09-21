@@ -12,11 +12,11 @@ from src.utils import config
 
 N_SENSORS = 200
 
-#data = build_deeponet_dataset_mmt(n_samples = 10000, n_sensors=N_SENSORS, k_c_min=0.1, k_c_max=1.0,
-#                                  k_min=config.K_MIN, k_max=config.K_MAX, A=1.0, beta=0.25, N=300, IntN=200,
-#                                  noise_std=0.01, seed=42, p_min=-2, p_max=0.4, save_path="mmt_dataset/flux.pt")
+data = build_deeponet_dataset_mmt(n_samples = 15000, n_sensors=N_SENSORS, k_c_min=0.1, k_c_max=1.0,
+                                  k_min=config.K_MIN, k_max=config.K_MAX, A=1.0, beta=0.25, N=300, IntN=200,
+                                  noise_std=0.01, seed=42, p_min=-1, p_max=0.2, save_path="mmt_dataset/flux.pt")
 
-data = torch.load("mmt_dataset/flux.pt", weights_only=False)
+#data = torch.load("mmt_dataset/flux.pt", weights_only=False)
 
 splits = split_deeponet_dataset_mmt(data, train_frac=0.6, val_frac=0.2, test_frac=0.2)
 
@@ -43,9 +43,9 @@ k_c_fixed = 0.5
 profile_example = test_data["profiles"][0]
 
 plot_flux_vs_p_mmt(
-    model, ps=np.linspace(-2, 0.4, 100), A=1.0, beta=0.25, k_c = 1,
+    model, ps=np.linspace(-1, 0.2, 100), A=1.0, beta=0.25, k_c = 1,
     k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
-    N = 300, IntN = 200, kz_lines = None, ps_true = np.linspace(-2, 0.4, 200),
+    N = 300, IntN = 200, kz_lines = None, ps_true = np.linspace(-1, 0.2, 200),
     save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
 )
 
