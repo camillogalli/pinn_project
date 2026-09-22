@@ -164,8 +164,7 @@ def plot_flux_vs_k_mmt(model, ps, A, beta, k_min, k_max, sensor_grid,
 
 
 def plot_flux_vs_p_mmt(model, ps, A, beta, k_min, sensor_grid, k_c,
-                        ps_true=None, N=300, IntN=200,
-                        kz_lines=None, save_path=None, show=True):
+                        ps_true=None, N=300, IntN=200, save_path=None, show=True):
     """
     Riproduce il tipo di plot di Salvatore et al. Fig.3: flusso F in funzione
     della pendenza spettrale p, per un k_c fissato — confronto DeepONet vs
@@ -191,19 +190,25 @@ def plot_flux_vs_p_mmt(model, ps, A, beta, k_min, sensor_grid, k_c,
         for p in ps_true
     ])
 
-    plt.figure(figsize=(8, 5))
-    plt.plot(ps, F_pred, linewidth=2, label="DeepONet")
-    plt.plot(ps_true, F_true, "--", linewidth=1, markersize=4, label="MMT solver")
+    plt.figure(figsize=(12, 5))
+    plt.plot(ps, F_pred, linewidth=3, label="DeepONet", color = "darkred")
+    plt.plot(ps_true, F_true, "--", linewidth=3,  label="MMT solver", color ="grey")
+    plt.grid(color="lightgrey", linestyle="-", linewidth=0.4)
     plt.axhline(0, color="black", linewidth=0.8)
 
-    if kz_lines:
-        for label, p_val in kz_lines.items():
-            plt.axvline(p_val, linestyle="--", linewidth=1, label=label)
+    alpha_mmt = 0.5
+    beta_mmt = 0.25
+    eq1 = (2 * beta_mmt / (3 * alpha_mmt)) - 1 / alpha_mmt
+    eq1K = eq1 / 2
 
-    plt.xlabel(r"pendenza spettrale $p$")
-    plt.ylabel(r"flusso $F$")
+    plt.axvline(eq1K, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
+    plt.axvline(-0.5, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
+
+    plt.xlabel(r"Spectral Power $p$")
+    plt.ylabel(r"$^1 P^4_1$")
     plt.ylim(-5, 15)
-    plt.title(r"Flusso: DeepONet vs solver MMT ($^{\rho}P^4_{(0, 1) \rightarrow (1, \infty)}$)")
+    plt.xlim(-0.9, 0.15)
+    plt.title(r"Wave action flux: DeepONet vs solver MMT ($^1 P^4_{(0, 1) \rightarrow (1, \infty)}$)")
     plt.legend()
     plt.tight_layout()
     if save_path:

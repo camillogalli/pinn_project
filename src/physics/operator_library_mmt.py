@@ -81,6 +81,7 @@ def plot_coefficients_vs_p(model, sensor_grid, ps, A, k_c_values, beta=0.25,
         ax.axhline(0, color="black", linewidth=0.6)
         ax.set_xlabel(r"$p$")
         ax.set_title(titolo)
+        ax.set_ylim(-100, 100)
 
     ax1.set_ylabel("coefficiente")
     ax2.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))

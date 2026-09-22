@@ -38,18 +38,18 @@ model.eval()
 
 test_data = splits["test"]
 
-k_c_fixed = 0.5
-profile_example = test_data["profiles"][0]
+#k_c_fixed = 0.5
+#profile_example = test_data["profiles"][0]
 
 plot_flux_vs_p_mmt(
     model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=0.25, k_c = 1,
     k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
-    N = 900, IntN = 600, kz_lines = None, ps_true = np.linspace(-0.9, 0.05, 200),
+    N = 900, IntN = 600, ps_true = np.linspace(-0.9, 0.05, 200),
     save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
 )
 
-plot_coefficients_vs_p(
-    model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
-    k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=3,
-    save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
-)
+#plot_coefficients_vs_p(
+#    model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
+#    k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=3,
+#    save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
+#)
