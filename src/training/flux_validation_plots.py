@@ -202,8 +202,8 @@ def plot_flux_vs_p_mmt(model, ps, A, beta, k_min, sensor_grid, k_c,
 
     plt.xlabel(r"pendenza spettrale $p$")
     plt.ylabel(r"flusso $F$")
-    #plt.yscale("symlog", linthresh=1.0)
-    plt.title(f"Flusso: DeepONet vs solver MMT ($k_c={k_c}$)")
+    plt.ylim(-5, 15)
+    plt.title(r"Flusso: DeepONet vs solver MMT ($^{\rho}P^4_{(0, 1) \rightarrow (1, \infty)}$)")
     plt.legend()
     plt.tight_layout()
     if save_path:

@@ -3,18 +3,24 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
 from src.physics.mmt_solver import power_law, flux_ab
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import StandardScaler
 
 def power_law_derivatives(k, p, A, max_order):
 
-    derivs = [A * k ** (p)]
-    coef = 1.0
-    for order in range(1, max_order + 1):
-        coef *= (p - (order - 1))
-        derivs.append(coef * A * k ** (p - order))
+    derivs = []
+    def n3k(k,p): return (A * k ** p)**3
+    def n2k_dk_nk(k,p): return (A * k ** p)**2 * (p * A * k ** (p - 1))
+    def nk_dk_nk2(k,p): return (A * k ** p) * (p * A * k ** (p - 1))**2
+    def dk_nk3(k,p): return (p * A * k ** (p - 1))**3
+
+    for order in range(max_order + 1):
+        derivs.append([n3k, n2k_dk_nk, nk_dk_nk2, dk_nk3][order](k, p))
     return derivs  
 
+
 def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
-                                N=300, IntN=200, max_order=4):
+                                N=300, IntN=200, max_order=4, ridge_alpha = 1e-3):
     
     k_c_values = np.asarray(k_c_values)
 
@@ -33,9 +39,11 @@ def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
     ])
 
     X = np.stack(derivs, axis=1)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
-    reg_pred = LinearRegression(fit_intercept=True).fit(X, F_pred)
-    reg_exact = LinearRegression(fit_intercept=True).fit(X, F_true)
+    reg_pred = Ridge(alpha=ridge_alpha, fit_intercept=True).fit(X_scaled, F_pred)
+    reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=True).fit(X_scaled, F_true)
 
     r2_pred = reg_pred.score(X, F_pred)
     r2_exact = reg_exact.score(X, F_true)
@@ -43,12 +51,12 @@ def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
     return (reg_pred.coef_, reg_pred.intercept_, r2_pred), (reg_exact.coef_, reg_exact.intercept_, r2_exact)
     
 
-def plot_coefficients_vs_alpha(model, sensor_grid, ps, A, k_c_values, beta=0.25,
-                               N=300, IntN=200, max_order=4, save_path=None, show=True):
+def plot_coefficients_vs_p(model, sensor_grid, ps, A, k_c_values, beta=0.25,
+                               N=300, IntN=200, max_order=3, save_path=None, show=True):
     ps = np.asarray(ps)
 
-    labels = [r"$n_k$", r"$\partial_k n_k$", r"$\partial_k^2 n_k$",
-              r"$\partial_k^3 n_k$", r"$\partial_k^4 n_k$"][:max_order + 1]
+    labels = [r"$(n_k)^3$", r"$n_k^2(\partial_k n_k)$", r"$(\partial_k n_k)^2 n_k$",
+              r"$(\partial_k n_k)^3$"][:max_order + 1]
 
     res = {"pred": {lab: [] for lab in labels + ["int"]},
            "exact": {lab: [] for lab in labels + ["int"]}}
@@ -56,7 +64,7 @@ def plot_coefficients_vs_alpha(model, sensor_grid, ps, A, k_c_values, beta=0.25,
 
     for p in ps:
         (coef_p, int_p, r2_p), (coef_e, int_e, r2_e) = fit_operators_at_fixed_p(
-            model, sensor_grid, p, A, k_c_values, beta=beta, N=N, IntN=IntN, max_order=max_order
+            model, sensor_grid, p, A, k_c_values, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
         )
         for key, coef, inter in (("pred", coef_p, int_p), ("exact", coef_e, int_e)):
             for lab, c in zip(labels, coef):
