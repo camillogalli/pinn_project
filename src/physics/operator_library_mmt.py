@@ -4,13 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.physics.mmt_solver import power_law, flux_ab
 
-def power_law_derivatives(k, alpha, A, max_order):
+def power_law_derivatives(k, p, A, max_order):
 
-    derivs = [A * k ** (-alpha)]
+    derivs = [A * k ** (p)]
     coef = 1.0
     for order in range(1, max_order + 1):
-        coef *= -(alpha + order - 1)
-        derivs.append(coef * A * k ** (-alpha - order))
+        coef *= (p - (order - 1))
+        derivs.append(coef * A * k ** (p - order))
     return derivs  
 
 def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,

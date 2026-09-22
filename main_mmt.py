@@ -8,6 +8,7 @@ from src.training.train_deeponet import (
      plot_deeponet_loss, plot_flux_prediction_test)
 
 from src.training.flux_validation_plots import plot_flux_vs_p_mmt
+from src.physics.operator_library_mmt import plot_coefficients_vs_alpha
 from src.utils import config
 
 N_SENSORS = 200
@@ -17,20 +18,23 @@ N_SENSORS = 200
 #                                  noise_std=0.005, seed=42, p_min=-1, p_max=0.06, save_path="mmt_dataset/flux.pt")
 
 data = torch.load("mmt_dataset/flux.pt", weights_only=False)
-
-
 splits = split_deeponet_dataset_mmt(data, train_frac=0.6, val_frac=0.2, test_frac=0.2)
 
+#model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
+
+#model, history = train_deeponet_mmt(
+#    model, splits, epochs=8000, lr=1e-3,
+#    sensor_grid=data["sensor_grid"], alpha_kz=0.5, A=1.0, beta=0.25,
+#    k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0, n_bc_points=50
+#)
+#torch.save(model.state_dict(), "weights/deeponet_weights_mmt.pt")
+
 model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
+model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
+model.eval()
 
-model, history = train_deeponet_mmt(
-    model, splits, epochs=8000, lr=1e-3,
-    sensor_grid=data["sensor_grid"], alpha_kz=0.5, A=1.0, beta=0.25,
-    k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0, n_bc_points=50
-)
-
-plot_deeponet_loss(history, save_path="outputs_mmt/deeponet_loss_mmt.png", show=False)
-plot_flux_prediction_test(model, splits["test"], save_path="outputs_mmt/deeponet_test_mmt.png", show=False)
+#plot_deeponet_loss(history, save_path="outputs_mmt/deeponet_loss_mmt.png", show=False)
+#plot_flux_prediction_test(model, splits["test"], save_path="outputs_mmt/deeponet_test_mmt.png", show=False)
 
 test_data = splits["test"]
 
@@ -42,4 +46,10 @@ plot_flux_vs_p_mmt(
     k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
     N = 900, IntN = 600, kz_lines = None, ps_true = np.linspace(-0.9, 0.05, 200),
     save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
+)
+
+plot_coefficients_vs_alpha(
+    model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
+    k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=4,
+    save_path="outputs_mmt/coefficients_vs_alpha_mmt.png", show=False
 )
