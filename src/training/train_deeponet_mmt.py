@@ -24,7 +24,7 @@ def split_deeponet_dataset_mmt(data, train_frac=0.6, val_frac=0.2, test_frac=0.2
 
 def train_deeponet_mmt(model, splits, epochs=6000, lr=1e-3, device="cpu",
                         sensor_grid=None, A=1.0, k_c_min=0.1, k_c_max=1.0,
-                        alpha_kz=0.5, beta=0.25, lambda_bc=1.0, n_bc_points=50):
+                        alpha_kz=0.5, beta=0.25, lambda_bc=1.0, n_bc_points=100):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     loss_fn = torch.nn.MSELoss()
@@ -34,10 +34,13 @@ def train_deeponet_mmt(model, splits, epochs=6000, lr=1e-3, device="cpu",
 
     # --- vincolo fisico: il flusso d'azione è zero a p = eq1K (soluzione KZ energetica) ---
     eq1 = (2 * beta / (3 * alpha_kz)) - 1 / alpha_kz
-    p_zero = eq1 / 2   # eq1K, in spazio k
+    p_zero1 = eq1 / 2   # eq1K, in spazio k
+    p_zero2 = -0.5
 
-    kz_profile = power_law(p_zero, A, sensor_grid)   # profilo VERO a quel p, non piatto
-    kz_profile_t = torch.tensor(kz_profile, dtype=torch.float32).unsqueeze(0).repeat(n_bc_points, 1)
+    kz_profile1 = power_law(p_zero1, A, sensor_grid)   # profilo VERO a quel p, non piatto
+    kz_profile2 = power_law(p_zero2, A, sensor_grid)   # profilo VERO a quel p, non piatto
+    kz_profile_t1 = torch.tensor(kz_profile1, dtype=torch.float32).unsqueeze(0).repeat(n_bc_points, 1)
+    kz_profile_t2 = torch.tensor(kz_profile2, dtype=torch.float32).unsqueeze(0).repeat(n_bc_points, 1)
     k_c_bc = torch.linspace(k_c_min, k_c_max, n_bc_points).reshape(-1, 1)
     F_bc_target = torch.zeros(n_bc_points, 1)
 
@@ -52,8 +55,10 @@ def train_deeponet_mmt(model, splits, epochs=6000, lr=1e-3, device="cpu",
         F_pred = model(train_data["profiles"], train_data["k_c"])
         data_loss = loss_fn(F_pred, train_data["F"])
 
-        # vincolo esplicito: F(p=eq1K) = 0, per ogni k_c
-        F_bc_pred = model(kz_profile_t, k_c_bc)
+        # vincolo esplicito: F(p=eq1K) = 0, F(p=0.5) = 0, per ogni k_c
+        F_bc_pred1 = model(kz_profile_t1, k_c_bc)
+        F_bc_pred2 = model(kz_profile_t2, k_c_bc)
+        F_bc_pred = F_bc_pred1 + F_bc_pred2
         bc_loss = loss_fn(F_bc_pred, F_bc_target)
 
         loss = data_loss + lambda_bc * bc_loss

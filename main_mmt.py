@@ -20,21 +20,21 @@ N_SENSORS = 200
 data = torch.load("mmt_dataset/flux.pt", weights_only=False)
 splits = split_deeponet_dataset_mmt(data, train_frac=0.6, val_frac=0.2, test_frac=0.2)
 
-#model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
-
-#model, history = train_deeponet_mmt(
-#    model, splits, epochs=8000, lr=1e-3,
-#    sensor_grid=data["sensor_grid"], alpha_kz=0.5, A=1.0, beta=0.25,
-#    k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0, n_bc_points=50
-#)
-#torch.save(model.state_dict(), "weights/deeponet_weights_mmt.pt")
-
 model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
-model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
-model.eval()
 
-#plot_deeponet_loss(history, save_path="outputs_mmt/deeponet_loss_mmt.png", show=False)
-#plot_flux_prediction_test(model, splits["test"], save_path="outputs_mmt/deeponet_test_mmt.png", show=False)
+model, history = train_deeponet_mmt(
+    model, splits, epochs=8000, lr=1e-3,
+    sensor_grid=data["sensor_grid"], alpha_kz=0.5, A=1.0, beta=0.25,
+    k_c_min=0.1, k_c_max=1.0, lambda_bc=1.0, n_bc_points=100
+)
+torch.save(model.state_dict(), "weights/deeponet_weights_mmt.pt")
+
+#model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
+#model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
+#model.eval()
+
+plot_deeponet_loss(history, save_path="outputs_mmt/deeponet_loss_mmt.png", show=False)
+plot_flux_prediction_test(model, splits["test"], save_path="outputs_mmt/deeponet_test_mmt.png", show=False)
 
 test_data = splits["test"]
 
@@ -48,8 +48,8 @@ plot_flux_vs_p_mmt(
     save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
 )
 
-#plot_coefficients_vs_p(
-#    model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
-#    k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=3,
-#    save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
-#)
+plot_coefficients_vs_p(
+    model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
+    k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=3,
+    save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
+)
