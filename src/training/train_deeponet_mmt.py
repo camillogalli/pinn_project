@@ -72,7 +72,7 @@ def train_deeponet_mmt(model, splits, epochs=6000, lr=1e-3, device="cpu",
             F_val_pred = model(val_data["profiles"], val_data["k_c"])
             val_loss = loss_fn(F_val_pred, val_data["F"])
 
-        history["train_loss"].append(data_loss.item())
+        history["train_loss"].append(loss.item())
         history["val_loss"].append(val_loss.item())
 
         if val_loss.item() < best_val:
@@ -80,7 +80,7 @@ def train_deeponet_mmt(model, splits, epochs=6000, lr=1e-3, device="cpu",
             best_state = {k: v.clone() for k, v in model.state_dict().items()}
 
         if epoch % 400 == 0 or epoch == epochs - 1:
-            print(f"Epoch {epoch:5d} | data_loss: {data_loss.item():.6e} | "
+            print(f"Epoch {epoch:5d} | total_loss: {loss.item():.6e} | "
                   f"bc_loss: {bc_loss.item():.6e} | val_loss: {val_loss.item():.6e}")
 
     model.load_state_dict(best_state)
