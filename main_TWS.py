@@ -14,7 +14,7 @@ model = DeepONet(n_sensors=N_SENSORS, latent_dim=64, hidden=128)
 model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
 
 model, history = train_deeponet_TWS(
-    model, epochs=8000, lr=1e-3,
+    model, epochs=6000, lr=1e-3,
     sensor_grid=sensor_grid, A=1.0, k_c_min=0.1, k_c_max=1.0,
     d = 1.0, beta=1, n_bc_points=100, rng = rng
 )

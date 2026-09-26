@@ -29,6 +29,12 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
     #-----vincoli fisici da inserire nella loss-----
     p1 = -beta -d #inserire il valore corretto degli esponenti per le sol di KZ
     scaling_factor = 2
+    p_sign_min, p_sign_max = p1, 0.0   # regione dove ti aspetti cascata diretta (F>0)
+    margin = 0.1                        # IMPORTANTE, vedi sotto
+    
+    p_sign = rng.uniform(p_sign_min, p_sign_max, size=n_bc_points)
+    sign_profiles = np.array([power_law(p, A, sensor_grid) for p in p_sign])
+    sign_profiles_t = torch.tensor(sign_profiles, dtype=torch.float32)
 
     kz_profile1 = power_law(p1, A, sensor_grid)   #queste sono le soluzioni di KZ  
     kz_profile_t1 = torch.tensor(kz_profile1, dtype=torch.float32).unsqueeze(0).repeat(n_bc_points, 1)
@@ -55,10 +61,12 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
         F_bc_pred = model(kz_profile_t1, k_c_bc)
         F_raw = model(profiles_raw, k_c_bc)
         F_scaled = model(profiles_scaled, k_c_bc)
+        F_sign_pred = model(sign_profiles_t, k_c_bc)
 
+        sign_loss = torch.relu(margin - F_sign_pred).mean()
         bc_loss1 = loss_fn(F_scaled, (lam ** scaling_factor) * F_raw)
         bc_loss2 = loss_fn(F_bc_pred, F_bc_target)
-        bc_loss = bc_loss1 + bc_loss2
+        bc_loss = bc_loss1 + bc_loss2 + sign_loss
 
         loss = bc_loss
         loss.backward()
