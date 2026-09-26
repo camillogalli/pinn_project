@@ -67,11 +67,12 @@ def plot_flux_reconstructed(model, sensor_grid, k_c_values, p= -5/6, A = 1, beta
     F_reconstructed = X_scaled @ coef_e + int_e
  
     plt.figure(figsize=(7,5))
-    plt.plot(k_c_values, F_reconstructed , label = "Reconstructed flux", color = "steelblue")
-    plt.xlabel("k_c")
-    plt.ylabel("F")
-    plt.title("Reconstructed flux vs k_c")
+    plt.plot(k_c_values, F_reconstructed , linewidth = 3, label = "Reconstructed flux", color = "steelblue")
+    plt.xlabel(r"$k_c$")
+    plt.ylabel(r"$F$")
+    plt.title(r"Reconstructed flux vs $k_c$ at $p_{kz}=-5/6$")
     plt.grid(color="lightgrey", linestyle="-", linewidth=0.4)
+    plt.axhline(0, color="black", linewidth=0.8)
     plt.legend()
     plt.tight_layout()
     if save_path:
