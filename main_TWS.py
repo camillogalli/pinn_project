@@ -16,7 +16,7 @@ model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
 model, history = train_deeponet_TWS(
     model, epochs=6000, lr=1e-3,
     sensor_grid=sensor_grid, A=1.0, k_c_min=0.1, k_c_max=1.0,
-    d = 1.0, beta=1, n_bc_points=100, rng = rng
+    d = 1.0, beta=-0.25, n_bc_points=100, rng = rng
 )
 model.eval()
 torch.save(model.state_dict(), "weights/deeponet_weights_TWS.pt")
@@ -24,7 +24,7 @@ torch.save(model.state_dict(), "weights/deeponet_weights_TWS.pt")
 plot_deeponet_loss(history, save_path="outputs_TWS/deeponet_loss_TWS.png", show=False)
 
 plot_flux_vs_p_TWS(
-    model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=1, 
+    model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=-0.25, 
     k_min=config.K_MIN, sensor_grid=sensor_grid, k_c = 1,
     save_path="outputs_TWS/flux_vs_p_TWS.png", show=False
 )
