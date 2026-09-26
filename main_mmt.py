@@ -8,7 +8,7 @@ from src.training.train_deeponet import (
      plot_deeponet_loss, plot_flux_prediction_test)
 
 from src.training.flux_validation_plots import plot_flux_vs_p_mmt
-from src.physics.operator_library_mmt import plot_coefficients_vs_p
+from src.physics.operator_library_mmt import plot_coefficients_vs_p, fit_operators_at_fixed_p
 from src.utils import config
 
 N_SENSORS = 200
@@ -41,15 +41,23 @@ test_data = splits["test"]
 #k_c_fixed = 0.5
 #profile_example = test_data["profiles"][0]
 
-plot_flux_vs_p_mmt(
-    model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=0.25, k_c = 1,
-    k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
-    N = 900, IntN = 600, ps_true = np.linspace(-0.9, 0.05, 200),
-    save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
-)
+#plot_flux_vs_p_mmt(
+#    model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=0.25, k_c = 1,
+#    k_min=config.K_MIN, sensor_grid=data["sensor_grid"],
+#    N = 900, IntN = 600, ps_true = np.linspace(-0.9, 0.05, 200),
+#    save_path="outputs_mmt/flux_vs_p_mmt.png", show=False
+#)
 
 plot_coefficients_vs_p(
     model, sensor_grid=data["sensor_grid"], ps=np.linspace(-0.9, 0.05, 50), A=1.0,
     k_c_values=np.linspace(0.1, 1.0, 20),beta=0.25, N=900, IntN=600, max_order=3,
     save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
 )
+
+(coef_p, int_p, r2_p), (coef_e, int_e, r2_e) = fit_operators_at_fixed_p(
+    model, sensor_grid=data["sensor_grid"], p=-5/6, A=1, 
+    k_c_values=np.linspace(0.1, 1.0, 20), beta=0.25, N=900, IntN=600, max_order=3,
+    ridge_alpha=1e-3)
+
+print("Coefficienti (DeepONet):", coef_p, "| intercetta:", int_p, "| R^2:", r2_p)
+print("Coefficienti (solver MMT):", coef_e, "| intercetta:", int_e, "| R^2:", r2_e)

@@ -20,7 +20,7 @@ def power_law_derivatives(k, p, A, max_order):
 
 
 def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
-                                N=300, IntN=200, max_order=4, ridge_alpha = 1e-3):
+                                N=300, IntN=200, max_order=3, ridge_alpha = 1e-3):
     
     k_c_values = np.asarray(k_c_values)
 
@@ -45,8 +45,8 @@ def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
     reg_pred = Ridge(alpha=ridge_alpha, fit_intercept=True).fit(X_scaled, F_pred)
     reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=True).fit(X_scaled, F_true)
 
-    r2_pred = reg_pred.score(X, F_pred)
-    r2_exact = reg_exact.score(X, F_true)
+    r2_pred = reg_pred.score(X_scaled, F_pred)
+    r2_exact = reg_exact.score(X_scaled, F_true)
 
     return (reg_pred.coef_, reg_pred.intercept_, r2_pred), (reg_exact.coef_, reg_exact.intercept_, r2_exact)
     
