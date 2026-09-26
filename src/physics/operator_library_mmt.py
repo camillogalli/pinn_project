@@ -49,7 +49,36 @@ def fit_operators_at_fixed_p(model, sensor_grid, p, A, k_c_values, beta=0.25,
     r2_exact = reg_exact.score(X_scaled, F_true)
 
     return (reg_pred.coef_, reg_pred.intercept_, r2_pred), (reg_exact.coef_, reg_exact.intercept_, r2_exact)
-    
+
+def plot_flux_reconstructed(model, sensor_grid, k_c_values, p= -5/6, A = 1, beta = 0.25, N = 300, IntN = 200,
+                             max_order = 3, save_path=None, show=True):
+
+    k_c_values = np.asarray(k_c_values)
+
+    (coef_p, int_p, r2_p), (coef_e, int_e, r2_e) = fit_operators_at_fixed_p(
+            model, sensor_grid, p, A, k_c_values, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
+    )
+
+    derivs = power_law_derivatives(k_c_values, p, A, max_order)
+    X = np.stack(derivs, axis=1)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    F_reconstructed = X_scaled @ coef_e + int_e
+ 
+    plt.figure(figsize=(7,5))
+    plt.plot(k_c_values, F_reconstructed , label = "Reconstructed flux", color = "steelblue")
+    plt.xlabel("k_c")
+    plt.ylabel("F")
+    plt.title("Reconstructed flux vs k_c")
+    plt.grid(color="lightgrey", linestyle="-", linewidth=0.4)
+    plt.legend()
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+    plt.close()
 
 def plot_coefficients_vs_p(model, sensor_grid, ps, A, k_c_values, beta=0.25,
                                N=300, IntN=200, max_order=3, save_path=None, show=True):

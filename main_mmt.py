@@ -8,7 +8,7 @@ from src.training.train_deeponet import (
      plot_deeponet_loss, plot_flux_prediction_test)
 
 from src.training.flux_validation_plots import plot_flux_vs_p_mmt
-from src.physics.operator_library_mmt import plot_coefficients_vs_p, fit_operators_at_fixed_p
+from src.physics.operator_library_mmt import plot_coefficients_vs_p, fit_operators_at_fixed_p, plot_flux_reconstructed
 from src.utils import config
 
 N_SENSORS = 200
@@ -61,3 +61,7 @@ plot_coefficients_vs_p(
 
 print("Coefficienti (DeepONet):", coef_p, "| intercetta:", int_p, "| R^2:", r2_p)
 print("Coefficienti (solver MMT):", coef_e, "| intercetta:", int_e, "| R^2:", r2_e)
+
+plot_flux_reconstructed(model, sensor_grid=data["sensor_grid"], k_c_values=np.linspace(0.1, 1.0, 20),
+                        p=-5/6, A=1, beta=0.25, N=900, IntN=600, max_order=3, 
+                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
