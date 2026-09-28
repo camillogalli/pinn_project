@@ -76,6 +76,8 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
 
         model.eval()
 
+        history["train_loss"].append(loss.item())
+
         if epoch % 400 == 0 or epoch == epochs - 1:
                 print( f"Epoch {epoch:5d} | total_loss: {loss.item():.6e} ")
 
@@ -83,7 +85,7 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
 
 def plot_deeponet_loss(history, save_path=None, show=True):
     plt.figure(figsize=(7, 5))
-    plt.semilogy(history["total_loss"], label="train loss")
+    plt.semilogy(history["train_loss"], label="physics loss")
     plt.xlabel("epoca")
     plt.ylabel("MSE (scala log)")
     plt.legend()

@@ -16,7 +16,7 @@ model.load_state_dict(torch.load("weights/deeponet_weights_mmt.pt"))
 model, history = train_deeponet_TWS(
     model, epochs=6000, lr=1e-3,
     sensor_grid=sensor_grid, A=1.0, k_c_min=0.1, k_c_max=1.0,
-    d = 1.0, beta=-0.25, n_bc_points=100, rng = rng, lambda1 = 0.5, lambda2 = 0.5, lambda3 = 1e2
+    d = 1.0, beta=-0.25, n_bc_points=3000, rng = rng, lambda1 = 1, lambda2 = 1, lambda3 = 1
 )
 model.eval()
 #torch.save(model.state_dict(), "weights/deeponet_weights_TWS.pt")
