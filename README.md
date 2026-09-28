@@ -61,15 +61,6 @@ Generated figures are saved to `outputs/`; trained model weights to `weights/`; 
 
 ---
 
-## Status / Roadmap
-
-- [x] Transport equation PINN, validated against the analytical solution
-- [x] MMT collision integral solver, translated to Python and validated against known KZ exponents
-- [x] DeepONet trained on synthetic and real MMT flux data, validated against the solver
-- [ ] Generalization to a three-wave interaction kernel (no dedicated solver available — physics-informed transfer learning approach in progress)
-
----
-
 ## Acknowledgements
 
 The MMT collision integral solver is translated from an original MATLAB implementation; the reference flux-vs-spectral-slope figure follows the structure of N.R. Salvatore et al., *Physica D: Nonlinear Phenomena* 483 (2025) 134964.

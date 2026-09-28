@@ -19,7 +19,7 @@ def sample_homogeneity_batch(n_points, sensor_grid,
 
 def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu", 
                        sensor_grid = None, A = 1.0, k_c_min = 0.1, k_c_max = 1.0,
-                       d  = 1.0, beta = 0.25, n_bc_points = 100, rng = None):
+                       d  = 1.0, beta = 0.25, n_bc_points = 100, rng = None, lambda1 = 1, lambda2 = 1, lambda3 = 1):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
@@ -66,7 +66,7 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
         sign_loss = torch.relu(margin - F_sign_pred).mean()
         bc_loss1 = loss_fn(F_scaled, (lam ** scaling_factor) * F_raw)
         bc_loss2 = loss_fn(F_bc_pred, F_bc_target)
-        bc_loss = bc_loss1 + bc_loss2 + sign_loss
+        bc_loss = lambda1*bc_loss1 + lambda2*bc_loss2 + lambda3*sign_loss
 
         loss = bc_loss
         loss.backward()
@@ -83,7 +83,7 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
 
 def plot_deeponet_loss(history, save_path=None, show=True):
     plt.figure(figsize=(7, 5))
-    plt.semilogy(history["train_loss"], label="train loss")
+    plt.semilogy(history["total_loss"], label="train loss")
     plt.xlabel("epoca")
     plt.ylabel("MSE (scala log)")
     plt.legend()
