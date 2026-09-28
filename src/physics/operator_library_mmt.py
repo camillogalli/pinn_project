@@ -65,9 +65,11 @@ def plot_flux_reconstructed(model, sensor_grid, k_c_values, p= -5/6, A = 1, beta
     X_scaled = scaler.fit_transform(X)
 
     F_reconstructed = X_scaled @ coef_e + int_e
+    F_real = k_c_values ** (-1/2)
  
     plt.figure(figsize=(7,5))
     plt.plot(k_c_values, F_reconstructed , linewidth = 3, label = "Reconstructed flux", color = "steelblue")
+    plt.plot(k_c_values, F_real, linewidth = 3, linestyle ="--", label = "True flux", color = "orange")
     plt.xlabel(r"$k_c$")
     plt.ylabel(r"$F$")
     plt.title(r"Reconstructed flux vs $k_c$ at $p_{kz}=-5/6$")
