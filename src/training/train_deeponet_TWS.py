@@ -35,7 +35,7 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
     gamma = gamma.reshape(-1, 1)
     scaling_factor = 2
     p_sign_min, p_sign_max = p1, 0.0    # regione dove ti aspetti cascata diretta (F>0)
-    margin = 0.1                        # IMPORTANTE, vedi sotto
+    margin = 0.5                        # IMPORTANTE, vedi sotto
     
     p_sign = rng.uniform(p_sign_min, p_sign_max, size=n_bc_points)
     profiles = np.array([power_law(p, A, sensor_grid) for p in ps])
@@ -128,7 +128,7 @@ def plot_flux_vs_p_TWS(model, ps, A, beta, k_min, sensor_grid, k_c,
     plt.ylabel(r"$^1 P^4_1$")
     plt.ylim(-5, 15)
     plt.xlim(-0.9, 0.15)
-    plt.title(r"Wave action flux: DeepONet vs solver MMT ($^1 P^4_{(0, 1) \rightarrow (1, \infty)}$)")
+    plt.title(r"Wave action flux: DeepONet solved TWS ($^1 P^4_{(0, 1) \rightarrow (1, \infty)}$)")
     plt.legend()
     plt.tight_layout()
     if save_path:
