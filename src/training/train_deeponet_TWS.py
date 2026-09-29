@@ -19,7 +19,7 @@ def sample_homogeneity_batch(n_points, sensor_grid,
 
 def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu", 
                        sensor_grid = None, A = 1.0, k_c_min = 0.1, k_c_max = 1.0,
-                       d  = 1.0, beta = 0.25, n_bc_points = 100, rng = None, lambda1 = 1, lambda2 = 1, lambda3 = 1):
+                       alpha = 1, d = 2, beta = 1, n_bc_points = 100, rng = None, lambda1 = 1, lambda2 = 1, lambda3 = 1, lambda4 = 1):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, amsgrad=True)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
@@ -27,12 +27,19 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
 
 
     #-----vincoli fisici da inserire nella loss-----
-    p1 = -beta -d #inserire il valore corretto degli esponenti per le sol di KZ
+
+    ps = rng.uniform(-1.05, 0.07, size = n_bc_points)
+    p1 = -alpha                       #inserire il valore corretto degli esponenti per le sol di KZ
+    nu = -beta-d
+    gamma = 2*(ps - nu)
+    gamma = gamma.reshape(-1, 1)
     scaling_factor = 2
-    p_sign_min, p_sign_max = p1, 0.0   # regione dove ti aspetti cascata diretta (F>0)
+    p_sign_min, p_sign_max = p1, 0.0    # regione dove ti aspetti cascata diretta (F>0)
     margin = 0.1                        # IMPORTANTE, vedi sotto
     
     p_sign = rng.uniform(p_sign_min, p_sign_max, size=n_bc_points)
+    profiles = np.array([power_law(p, A, sensor_grid) for p in ps])
+    profiles_t = torch.tensor(profiles, dtype = torch.float32)
     sign_profiles = np.array([power_law(p, A, sensor_grid) for p in p_sign])
     sign_profiles_t = torch.tensor(sign_profiles, dtype=torch.float32)
 
@@ -42,8 +49,6 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
     k_c_bc = torch.linspace(k_c_min, k_c_max, n_bc_points).reshape(-1, 1)
 
     F_bc_target = torch.zeros(n_bc_points, 1)
-
-    # qui aggiungeremo un nuovo vincolo per il segno del flusso 
 
     #-----fine vincoli fisici-----
 
@@ -62,11 +67,15 @@ def train_deeponet_TWS(model, epochs= 6000, lr = 1e-3, device = "cpu",
         F_raw = model(profiles_raw, k_c_bc)
         F_scaled = model(profiles_scaled, k_c_bc)
         F_sign_pred = model(sign_profiles_t, k_c_bc)
+        F_kc = model(profiles_t, k_c_bc)
+        F_one = model(profiles_t, torch.ones_like(k_c_bc))
 
         sign_loss = torch.relu(margin - F_sign_pred).mean()
         bc_loss1 = loss_fn(F_scaled, (lam ** scaling_factor) * F_raw)
         bc_loss2 = loss_fn(F_bc_pred, F_bc_target)
-        bc_loss = lambda1*bc_loss1 + lambda2*bc_loss2 + lambda3*sign_loss
+        kc_scale_loss = loss_fn(F_kc, (k_c_bc ** gamma) * F_one)
+        bc_loss = lambda1*bc_loss1 + lambda2*bc_loss2 + lambda3*sign_loss + lambda4*kc_scale_loss
+
 
         loss = bc_loss
         loss.backward()
