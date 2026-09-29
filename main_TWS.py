@@ -24,7 +24,7 @@ model.eval()
 plot_deeponet_loss(history, save_path="outputs_TWS/deeponet_loss_TWS.png", show=False)
 
 plot_flux_vs_p_TWS(
-    model, ps=np.linspace(-0.9, 0.05, 100), A=1.0, beta=-0.25, 
+    model, ps=np.linspace(-7.5, -1.25, 100), A=1.0, beta=-0.25, 
     k_min=config.K_MIN, sensor_grid=sensor_grid, k_c = 1,
     save_path="outputs_TWS/flux_vs_p_TWS.png", show=False
 )
