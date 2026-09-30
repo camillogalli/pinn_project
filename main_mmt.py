@@ -10,6 +10,7 @@ from src.training.train_deeponet import (
 from src.training.flux_validation_plots import plot_flux_vs_p_mmt
 from src.physics.operator_library_mmt import plot_coefficients_vs_p, fit_operators_at_fixed_p, plot_flux_reconstructed
 from src.utils import config
+from src.physics.linear_operator_library_mmt import fit_operators_at_fixed_p_linear, plot_coefficients_vs_p_linear
 
 N_SENSORS = 200
 
@@ -54,14 +55,26 @@ test_data = splits["test"]
 #    save_path="outputs_mmt/coefficients_vs_p_mmt.png", show=False
 #)
 
-(coef_p, int_p, r2_p), (coef_e, int_e, r2_e) = fit_operators_at_fixed_p(
-    model, sensor_grid=data["sensor_grid"], p=-5/6, A=1, 
-    k_c_values=np.linspace(0.1, 1.0, 50), beta=0.25, N=900, IntN=600, max_order=3,
-    ridge_alpha=1e-3)
+#(coef_p, int_p, r2_p), (coef_e, int_e, r2_e) = fit_operators_at_fixed_p(
+#    model, sensor_grid=data["sensor_grid"], p=-5/6, A=1, 
+#    k_c_values=np.linspace(0.1, 1.0, 50), beta=0.25, N=900, IntN=600, max_order=3,
+#    ridge_alpha=1e-3)
 
-print("Coefficienti (DeepONet):", coef_p, "| intercetta:", int_p, "| R^2:", r2_p)
-print("Coefficienti (solver MMT):", coef_e, "| intercetta:", int_e, "| R^2:", r2_e)
+#print("Coefficienti (DeepONet):", coef_p, "| intercetta:", int_p, "| R^2:", r2_p)
+#print("Coefficienti (solver MMT):", coef_e, "| intercetta:", int_e, "| R^2:", r2_e)
 
-plot_flux_reconstructed(model, sensor_grid=data["sensor_grid"], k_c_values=np.linspace(0.15, 1.0, 50),
-                        p=-5/6, A=1, beta=0.25, N=900, IntN=600, max_order=3, 
-                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
+#plot_flux_reconstructed(model, sensor_grid=data["sensor_grid"], k_c_values=np.linspace(0.15, 1.0, 50),
+#                        p=-5/6, A=1, beta=0.25, N=900, IntN=600, max_order=3, 
+#                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
+
+(coef_e_l, int_e_l, r2_e_l) = fit_operators_at_fixed_p_linear(
+    p = np.linspace (-0.9, -0.05, 50), A = 1, k = np.linspace(config.K_MIN, config.K_MAX, 100), k_min= config.K_MIN,
+    k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=2, ridge_alpha = 1e-3
+)
+
+print("Coefficienti (solver MMT):", coef_e_l, "| intercetta:", int_e_l, "| R^2:", r2_e_l)
+
+plot_coefficients_vs_p_linear(
+    ps = np.linspace(-0.9, -0.05, 50), A = 1, k_c_values = np.linspace(0.1, 1.0, 100), beta = 0.25, 
+    N=300, IntN=200, max_order=2, save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=True 
+)
