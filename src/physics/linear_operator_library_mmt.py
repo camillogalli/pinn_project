@@ -31,8 +31,6 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     ])
 
     X = np.stack(derivs, axis=1)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
 
     reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=False).fit(X, F_true)
 
@@ -70,8 +68,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     plt.title("Flux prediction, linear model")
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
-    plt.axvline(-2/3, linestyle="--", linewidth=0.8, color="black", label="Action KZ Sol.")
-    #plt.yscale("log")
+    plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
     plt.legend()
 
     plt.tight_layout()
