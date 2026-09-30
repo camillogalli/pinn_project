@@ -32,6 +32,8 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     ])
 
     X = np.stack(derivs, axis=1)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
     reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=False).fit(X, F_true)
 

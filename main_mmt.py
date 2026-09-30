@@ -68,7 +68,7 @@ test_data = splits["test"]
 #                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
 
 (coef_e_l, r2_e_l) = fit_operators_at_fixed_p_linear(
-    p = -5/6, A = 1, k = np.linspace(0.1, 1, 50), k_min= config.K_MIN,
+    p = -2/3, A = 1, k = np.linspace(0.1, 1, 50), k_min= config.K_MIN,
     k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=3, ridge_alpha = 1e-3
 )
 
