@@ -68,13 +68,14 @@ test_data = splits["test"]
 #                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
 
 (coef_e_l, int_e_l, r2_e_l) = fit_operators_at_fixed_p_linear(
-    p = np.linspace (-0.9, -0.05, 50), A = 1, k = np.linspace(config.K_MIN, config.K_MAX, 100), k_min= config.K_MIN,
+    p = -5/6, A = 1, k = np.linspace(config.K_MIN, config.K_MAX, 100), k_min= config.K_MIN,
     k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=2, ridge_alpha = 1e-3
 )
 
 print("Coefficienti (solver MMT):", coef_e_l, "| intercetta:", int_e_l, "| R^2:", r2_e_l)
 
 plot_coefficients_vs_p_linear(
-    ps = np.linspace(-0.9, -0.05, 50), A = 1, k_c_values = np.linspace(0.1, 1.0, 100), beta = 0.25, 
-    N=300, IntN=200, max_order=2, save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=True 
+    ps = np.linspace(-0.9, -0.05, 50), A = 1, k = np.linspace(0.1, 1.0, 100), beta = 0.25, 
+    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=2,
+    save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
 )

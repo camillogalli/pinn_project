@@ -40,7 +40,7 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
 
     return (reg_exact.coef_, reg_exact.intercept_, r2_exact)
 
-def plot_coefficients_vs_p_linear(ps, A, k_c_values, beta=0.25,
+def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
                                N=300, IntN=200, max_order=2, save_path=None, show=True):
     ps = np.asarray(ps)
 
@@ -52,15 +52,19 @@ def plot_coefficients_vs_p_linear(ps, A, k_c_values, beta=0.25,
 
     for p in ps:
         (coef_e, int_e, r2_e) = fit_operators_at_fixed_p_linear(
-            p, A, k_c_values, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
+            p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
         )
-        for key, coef, inter in ("exact", coef_e, int_e):
-            for lab, c in zip(labels, coef):
-                res[key][lab].append(c)
-            res[key]["int"].append(inter)
+        for lab, c in zip(labels, coef_e):
+            res["exact"][lab].append(c)
+
+        res["exact"]["int"].append(int_e)
         r2_exact_list.append(r2_e)
 
     plt.figure(figsize=(14, 5))
+
+    for lab in labels:
+        plt.plot(ps, res["exact"][lab], "o-", markersize = 3, label = lab)
+
     plt.axhline(0, color="black", linewidth=0.6)
     plt.xlabel(r"$p$")
     plt.title("Flux prediction, linear model")
