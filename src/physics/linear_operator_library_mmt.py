@@ -34,11 +34,11 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=True).fit(X_scaled, F_true)
+    reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=False).fit(X, F_true)
 
-    r2_exact = reg_exact.score(X_scaled, F_true)
+    r2_exact = reg_exact.score(X, F_true)
 
-    return (reg_exact.coef_, reg_exact.intercept_,  r2_exact)
+    return (reg_exact.coef_,  r2_exact)
 
 def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
                                N=300, IntN=200, max_order=2, save_path=None, show=True):
@@ -47,22 +47,22 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     labels = [r"$(n_k)$", r"$\partial_k n_k$", r"$\partial^2_k n_k$"
               ][:max_order + 1]
 
-    res = { "exact": {lab: [] for lab in labels + ["int"]}}
+    res = { "exact": {lab: [] for lab in labels }}
     r2_exact_list = []
 
     for p in ps:
-        (coef_e, int_e, r2_e) = fit_operators_at_fixed_p_linear(
+        (coef_e, r2_e) = fit_operators_at_fixed_p_linear(
             p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
         )
         for lab, c in zip(labels, coef_e):
             res["exact"][lab].append(c)
 
-        res["exact"]["int"].append(int_e)
+        
         r2_exact_list.append(r2_e)
 
     plt.figure(figsize=(14, 5))
 
-    for lab in labels + ["int"]:
+    for lab in labels :
         plt.plot(ps, res["exact"][lab], "o-", markersize = 3, label = lab)
 
     plt.axhline(0, color="black", linewidth=0.6)
