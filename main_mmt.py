@@ -69,13 +69,13 @@ test_data = splits["test"]
 
 (coef_e_l, r2_e_l) = fit_operators_at_fixed_p_linear(
     p = -5/6, A = 1, k = np.linspace(0.1, 1, 50), k_min= config.K_MIN,
-    k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=2, ridge_alpha = 1e-3
+    k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=3, ridge_alpha = 1e-3
 )
 
 print("Coefficienti (solver MMT): ", coef_e_l, "| R^2: ", r2_e_l)
 
 plot_coefficients_vs_p_linear(
-    ps = np.linspace(-0.9, -0.25, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
-    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=2,
+    ps = np.linspace(-0.9, -0.3, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
+    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=3,
     save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
 )

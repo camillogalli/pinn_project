@@ -13,13 +13,14 @@ def power_law_derivatives_linear(k, p, max_order, k_min, k_max):
     def nk(k,p): return N*(k ** p)
     def dk_nk(k,p): return N*(k ** (p-1)) *p 
     def d2k_nk2(k,p): return N*p*(p-1)*(k**(p-2))
+    def d3k_n_k3(k,p): return N*p*(p-1)*(p-2)*(k**(p-3))
 
     for order in range(max_order + 1):
-        derivs.append([nk, dk_nk, d2k_nk2][order](k, p))
+        derivs.append([nk, dk_nk, d2k_nk2, d3k_n_k3][order](k, p))
     return derivs
 
 def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
-                                N=300, IntN=200, max_order=2, ridge_alpha = 1e-3):
+                                N=300, IntN=200, max_order=3, ridge_alpha = 1e-3):
     
     k = np.asarray(k)
 
@@ -39,10 +40,10 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     return (reg_exact.coef_,  r2_exact)
 
 def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
-                               N=300, IntN=200, max_order=2, save_path=None, show=True):
+                               N=300, IntN=200, max_order=3, save_path=None, show=True):
     ps = np.asarray(ps)
 
-    labels = [r"$(n_k)$", r"$\partial_k n_k$", r"$\partial^2_k n_k$"
+    labels = [r"$n_k$", r"$\partial_k n_k$", r"$\partial^2_k n_k$", r"$\partial^3_k n_k$"
               ][:max_order + 1]
 
     res = { "exact": {lab: [] for lab in labels }}
