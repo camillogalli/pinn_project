@@ -72,12 +72,14 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
 
     plt.axhline(0, color="black", linewidth=0.6)
     plt.xlabel(r"$p$")
-    plt.title("Flux prediction, linear model")
+    plt.ylabel(r"coefficients")
+    plt.title("MMT Flux reconstruction, linear model")
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
     plt.xlim(-0.95, -0.4)
-    plt.legend()
+    plt.ylim(-12, 12)
+    plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
 
     plt.tight_layout()
     if save_path:
