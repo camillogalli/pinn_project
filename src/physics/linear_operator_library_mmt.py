@@ -41,7 +41,9 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     F_fit = reg_exact.predict(X_scaled)
     rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-20)
 
-    return (reg_exact.coef_, reg_exact.intercept_, r2_exact, rel_error)
+    coef_physical = reg_exact.coef_ / scaler.scale_
+
+    return (reg_exact.coef_, reg_exact.intercept_, r2_exact, rel_error, coef_physical)
 
 def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
                                N=300, IntN=200, max_order=3, save_path=None, show=True):
@@ -55,7 +57,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     rel_err_exact_list = []
 
     for p in ps:
-        (coef_e, int_e, r2_e, rel_e) = fit_operators_at_fixed_p_linear(
+        (coef_e, int_e, r2_e, rel_e, coef_physical) = fit_operators_at_fixed_p_linear(
             p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
         )
         for lab, c in zip(labels, coef_e):
@@ -87,3 +89,46 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     if show:
         plt.show()
     plt.close()
+
+
+def plot_coefficients_physical(ps, A, k, k_min, k_max, beta=0.25,
+                               N=300, IntN=200, max_order=3, save_path=None, show=True):
+    ps = np.asarray(ps)
+
+    labels = [r"$n_k$", r"$\partial_k n_k$", r"$\partial^2_k n_k$", r"$\partial^3_k n_k$"][:max_order + 1] 
+    res = { "exact": {lab: [] for lab in labels + ["int"] }}   
+
+    for p in ps:
+        (coef_e, int_e, r2_e, rel_e, coef_physical) = fit_operators_at_fixed_p_linear(
+            p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
+        )
+        for lab, c in zip(labels, coef_physical):
+            res["exact"][lab].append(c)
+
+        res["exact"]["int"].append(int_e)
+
+    plt.figure(figsize=(14, 5))
+    
+    for lab in labels + ["int"] :
+        plt.plot(ps, res["exact"][lab], "o-", markersize = 3, label = lab)
+
+    plt.axhline(0, color="black", linewidth=0.6)
+    plt.xlabel(r"$p$")
+    plt.ylabel(r"coefficients")
+    plt.title("MMT Flux reconstruction, linear model, physical coefficients")
+    plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
+    plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
+    plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
+    plt.xlim(-0.95, -0.4)
+    plt.ylim(-12, 12)
+    plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
+    
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches="tight")
+    if show:
+        plt.show()
+    plt.close()
+
+
+
