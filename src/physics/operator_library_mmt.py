@@ -114,9 +114,10 @@ def plot_coefficients_vs_p(model, sensor_grid, ps, A, k_c_values, beta=0.25,
         ax.axhline(0, color="black", linewidth=0.6)
         ax.set_xlabel(r"$p$")
         ax.set_title(titolo)
-        ax.set_ylim(-100, 100)
+        ax.set_ylim(-12, 12)
         ax.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
         ax.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
+        ax.set_xlim(-0.95, -0.4)
 
     ax1.set_ylabel("coefficiente")
     ax2.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
@@ -126,15 +127,3 @@ def plot_coefficients_vs_p(model, sensor_grid, ps, A, k_c_values, beta=0.25,
     if show:
         plt.show()
     plt.close()
-
-def linear_reconstruction(k,p, k_min, k_max, a , b, c):
-
-    def n_k(k,p) : return k**p
-    def d_kn_k(k,p) : return p*(k**(p-1))
-    def d2_kn_k(k,p): return p*(p-1)*(k**(p-2))
-
-    domain = np.linspace(k_min, k_max, 10000)
-    N = np.trapz(n_k(k, p), domain)  
-
-    return a*N*n_k(k,p) + b*N*d_kn_k(k,p) + c*N*d2_kn_k(k,p)
-
