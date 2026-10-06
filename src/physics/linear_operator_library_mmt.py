@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 def power_law_derivatives_linear(k, p, max_order, k_min, k_max):
 
-    domain = np.linspace(k_min, k_max, 1000)
+    domain = np.linspace(k_min, k_max, 3000)
     N = np.trapezoid(domain**p, domain)
 
     derivs = []
