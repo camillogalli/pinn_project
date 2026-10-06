@@ -49,6 +49,7 @@ def run(alpha=0.5, beta=0.25, N=800, IntN=500, n_points=60, save_path=None, show
     plt.axvline(eq2K, color="tab:blue", linestyle=":", linewidth=1)
     plt.text(eq1K, max(F_energy.max(), F_action.max()) * 0.9, "Energy KZ Sol.", rotation=90, va="top")
     plt.text(eq2K, max(F_energy.max(), F_action.max()) * 0.9, "Action KZ Sol.", rotation=90, va="top")
+    plt.ylim(-8, 12)
     plt.xlabel("Spectral Power (p)")
     plt.ylabel(r"$^{\rho}P^4_{(0,1)\to(1,\infty)}$")
     plt.title(r"Flux of Energy and Action $(0,1)\to(1,\infty)$ as a Function of Power Law")
