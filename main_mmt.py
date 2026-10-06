@@ -77,22 +77,22 @@ test_data = splits["test"]
 
 #------------------ Fit dei coefficienti per il modello DeepONet e per il solver MMT (linearizzato) -----------------------------#
 
-(coef_e_l, int_e_l, r2_e_l, rel_e_l, coef_phys) = fit_operators_at_fixed_p_linear(
+(coef_e_l, r2_e_l, rel_e_l, coef_phys) = fit_operators_at_fixed_p_linear(
     p = -2/3, A = 1, k = np.linspace(0.1, 1, 50), k_min= config.K_MIN,
-    k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=3, ridge_alpha = 1e-3
+    k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=4, ridge_alpha = 1e-3
 )
 
-print("Coefficienti (solver MMT): ", coef_e_l, "intercetta: ", int_e_l ,"| R^2: ", r2_e_l, "errore relativo: ", rel_e_l)
+print("Coefficienti (solver MMT): ", coef_e_l ,"| R^2: ", r2_e_l, "errore relativo: ", rel_e_l)
 print("Coefficienti (modello fisico): ", coef_phys)
 
 plot_coefficients_vs_p_linear(
     ps = np.linspace(-0.9, 0, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
-    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=3,
-    save_path="outputs_mmt/coefficients_vs_p_mmt_linear_energy", show=False 
+    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
+    save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
 )
 
 plot_coefficients_physical(
     ps = np.linspace(-0.9, 0, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
-    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=3,
-    save_path="outputs_mmt/coefficients_physical_vs_p_mmt_physical_energy", show=False 
+    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
+    save_path="outputs_mmt/coefficients_physical_vs_p_mmt_physical", show=False 
 )
