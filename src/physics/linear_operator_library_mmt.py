@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from src.physics.mmt_solver import power_law, flux_ab
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.preprocessing import StandardScaler
 
 def power_law_derivatives_linear(k, p, max_order, k_min, k_max):
@@ -33,18 +33,18 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     ])
 
     X = np.stack(derivs, axis=1)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    #scaler = StandardScaler()
+    #X_scaled = scaler.fit_transform(X)
 
-    reg_exact = Ridge(alpha=ridge_alpha, fit_intercept=False).fit(X_scaled, F_true)
+    reg_exact = LinearRegression(fit_intercept=False).fit(X, F_true)
 
-    r2_exact = reg_exact.score(X_scaled, F_true)
-    F_fit = reg_exact.predict(X_scaled)
+    r2_exact = reg_exact.score(X, F_true)
+    F_fit = reg_exact.predict(X)
     rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-20)
 
-    coef_physical = reg_exact.coef_ / scaler.scale_
+    #coef_physical = reg_exact.coef_ / scaler.scale_
 
-    return (reg_exact.coef_, r2_exact, rel_error, coef_physical)
+    return (reg_exact.coef_, r2_exact, rel_error)
 
 def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
                                N=300, IntN=200, max_order=3, save_path=None, show=True):
@@ -58,7 +58,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     rel_err_exact_list = []
 
     for p in ps:
-        (coef_e, r2_e, rel_e, coef_physical) = fit_operators_at_fixed_p_linear(
+        (coef_e, r2_e, rel_e) = fit_operators_at_fixed_p_linear(
             p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
         )
         for lab, c in zip(labels, coef_e):
@@ -90,7 +90,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
         plt.show()
     plt.close()
 
-
+"""
 def plot_coefficients_physical(ps, A, k, k_min, k_max, beta=0.25,
                                N=300, IntN=200, max_order=3, save_path=None, show=True):
     ps = np.asarray(ps)
@@ -129,5 +129,5 @@ def plot_coefficients_physical(ps, A, k, k_min, k_max, beta=0.25,
         plt.show()
     plt.close()
 
-
+"""
 
