@@ -86,13 +86,13 @@ print("Coefficienti (solver MMT): ", coef_e_l, "intercetta: ", int_e_l ,"| R^2: 
 print("Coefficienti (modello fisico): ", coef_phys)
 
 plot_coefficients_vs_p_linear(
-    ps = np.linspace(-0.9, -0.3, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
+    ps = np.linspace(-0.9, 0, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
     k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=3,
-    save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
+    save_path="outputs_mmt/coefficients_vs_p_mmt_linear_energy", show=False 
 )
 
 plot_coefficients_physical(
-    ps = np.linspace(-0.9, -0.3, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
+    ps = np.linspace(-0.9, 0, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
     k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=3,
-    save_path="outputs_mmt/coefficients_physical_vs_p_mmt_physical", show=False 
+    save_path="outputs_mmt/coefficients_physical_vs_p_mmt_physical_energy", show=False 
 )

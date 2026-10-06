@@ -27,7 +27,7 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     derivs = power_law_derivatives_linear(k, p, max_order, k_min, k_max)
 
     F_true = np.array([
-        flux_ab(power_law, (p, A), [0, kc], [kc, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        flux_ab(power_law, (p, A), [0, kc], [kc, np.inf], beta, "Energy", N=N, IntN=IntN)[0]
         for kc in k
     ])
 
@@ -79,7 +79,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
-    plt.xlim(-0.95, -0.4)
+    plt.xlim(-0.95, 0.05)
     plt.ylim(-12, 12)
     plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
 
@@ -119,7 +119,7 @@ def plot_coefficients_physical(ps, A, k, k_min, k_max, beta=0.25,
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
-    plt.xlim(-0.95, -0.4)
+    plt.xlim(-0.95, 0.05)
     plt.ylim(-12, 12)
     plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
     
