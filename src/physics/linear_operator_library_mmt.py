@@ -42,8 +42,6 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     F_fit = reg_exact.predict(X)
     rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-20)
 
-    #coef_physical = reg_exact.coef_ / scaler.scale_
-
     return (reg_exact.coef_, r2_exact, rel_error, N_p)
 
 def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
@@ -76,7 +74,7 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     plt.figure(figsize=(14, 5))
 
     for lab in labels :
-        plt.plot(ps, res["exact"][lab]*(N_p_list**2), "o-", markersize = 3, label = lab)
+        plt.plot(ps, res["exact"][lab], "o-", markersize = 3, label = lab)
 
     plt.axhline(0, color="black", linewidth=0.6)
     plt.xlabel(r"$p$")
@@ -85,8 +83,8 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
-    plt.xlim(-0.9, -0.2)
-    plt.ylim(-12, 12)
+    plt.xlim(-0.9, -0.3)
+    plt.ylim(-10, 10)
     plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
 
     plt.tight_layout()
@@ -96,44 +94,51 @@ def plot_coefficients_vs_p_linear(ps, A, k, k_min, k_max, beta=0.25,
         plt.show()
     plt.close()
 
-"""
-def plot_coefficients_physical(ps, A, k, k_min, k_max, beta=0.25,
-                               N=300, IntN=200, max_order=3, save_path=None, show=True):
+
+def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
+                        N=300, IntN=200, save_path = None, show=True):
+
     ps = np.asarray(ps)
 
-    labels = ["int", r"$n_k$", r"$\partial_k n_k$", r"$\partial^2_k n_k$", r"$\partial^3_k n_k$"][:max_order + 1] 
-    res = { "exact": {lab: [] for lab in labels }}   
+    F_true = np.array([
+        flux_ab(power_law, (p, A), [0, 1], [1, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        for p in ps
+    ])
 
-    for p in ps:
-        (coef_e, r2_e, rel_e, coef_physical) = fit_operators_at_fixed_p_linear(
-            p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
-        )
-        for lab, c in zip(labels, coef_physical):
-            res["exact"][lab].append(c)
+    def basis_row(p, L):
+        row, term = [1.0], 1.0
+        for ell in range(1, L + 1):
+            term *= (p - (ell - 1))
+            row.append(term)
+        return row
+
+    X = np.array([basis_row(p, max_order) for p in ps])
 
 
-    plt.figure(figsize=(14, 5))
-    
-    for lab in labels  :
-        plt.plot(ps, res["exact"][lab], "o-", markersize = 3, label = lab)
+    reg_exact = LinearRegression(fit_intercept=False).fit(X, F_true)
+    F_fit = reg_exact.predict(X)
+    rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-20)
 
-    plt.axhline(0, color="black", linewidth=0.6)
+    plt.figure(figsize=(14,6))
+    plt.title("MMT Flux reconstruction, linear model")
     plt.xlabel(r"$p$")
-    plt.ylabel(r"coefficients")
-    plt.title("MMT Flux reconstruction, linear model, physical coefficients")
+    plt.ylabel(r"Flux $\hat{F}(p)$")
+    plt.axhline(0, color="black", linewidth=0.6)
+    plt.plot(ps, F_true, "o-", markersize=3, label="True Flux")
+    plt.plot(ps, F_fit, "o-", markersize=3, label="Fitted Flux")
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
-    plt.xlim(-0.95, 0.05)
-    plt.ylim(-12, 12)
-    plt.legend(loc = "center left", bbox_to_anchor=(1, 0.5))
-    
+    plt.xlim(-0.9, 0.05)
+    plt.ylim(-10, 10)
+    plt.legend()
     plt.tight_layout()
+
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches="tight")
     if show:
         plt.show()
     plt.close()
 
-"""
+    return reg_exact.coef_, rel_error
 

@@ -10,7 +10,7 @@ from src.training.train_deeponet import (
 from src.training.flux_validation_plots import plot_flux_vs_p_mmt
 from src.physics.operator_library_mmt import plot_coefficients_vs_p, fit_operators_at_fixed_p, plot_flux_reconstructed
 from src.utils import config
-from src.physics.linear_operator_library_mmt import fit_operators_at_fixed_p_linear, plot_coefficients_vs_p_linear#, plot_coefficients_physical
+from src.physics.linear_operator_library_mmt import fit_operators_at_fixed_p_linear, plot_coefficients_vs_p_linear, fit_flux_through_1
 
 N_SENSORS = 200
 
@@ -76,23 +76,25 @@ test_data = splits["test"]
 #                        save_path="outputs_mmt/reconstructed_flux_mmt.png", show=False)
 
 #------------------ Fit dei coefficienti per il modello DeepONet e per il solver MMT (linearizzato) -----------------------------#
-
+"""
 (coef_e_l, r2_e_l, rel_e_l, N_p_l) = fit_operators_at_fixed_p_linear(
     p = -2/3, A = 1, k = np.linspace(0.1, 1, 100), k_min= config.K_MIN,
     k_max = config.K_MAX, beta=0.25, N=300, IntN=200, max_order=4, ridge_alpha = 1e-3
 )
 
 print("Coefficienti (solver MMT): ", coef_e_l ,"| R^2: ", r2_e_l, "errore relativo: ", rel_e_l)
-#print("Coefficienti (modello fisico): ", coef_phys)
 
 plot_coefficients_vs_p_linear(
     ps = np.linspace(-1, -0.2, 100), A = 1, k = np.linspace(0.1, 1.0, 100), beta = 0.25, 
     k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
     save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
 )
+"""
 
-#plot_coefficients_physical(
-#    ps = np.linspace(-0.9, 0, 50), A = 1, k = np.linspace(0.1, 1.0, 50), beta = 0.25, 
-#    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
-#    save_path="outputs_mmt/coefficients_physical_vs_p_mmt_physical", show=False 
-#)
+(coef_e, rel_error) = fit_flux_through_1(
+    ps = np.linspace(-1, -0.2, 100), A = 1, max_order = 4, beta=0.25, N=300, IntN=200,
+    save_path = "outputs_mmt/flux_through_1_mmt_linear", show=False
+)
+print("Coefficienti (modello lineare MMT): ", coef_e, "errore relativo: ", rel_error)
+
+
