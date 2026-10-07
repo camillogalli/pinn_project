@@ -92,7 +92,7 @@ plot_coefficients_vs_p_linear(
 """
 
 (coef_e, rel_error) = fit_flux_through_1(
-    ps = np.linspace(-1, -0.2, 100), A = 1, max_order = 4, beta=0.25, N=300, IntN=200,
+    ps = np.linspace(-0.95, -0.15, 100), A = 1, max_order = 3, beta=0.25, N=600, IntN=500,
     save_path = "outputs_mmt/flux_through_1_mmt_linear", show=False
 )
 print("Coefficienti (modello lineare MMT): ", coef_e, "errore relativo: ", rel_error)
