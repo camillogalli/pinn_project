@@ -117,7 +117,7 @@ def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
 
     reg_exact = LinearRegression(fit_intercept=False).fit(X, F_true)
     F_fit = reg_exact.predict(X)
-    rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-20)
+    rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-30)
 
     plt.figure(figsize=(14,5))
     plt.title("MMT Flux reconstruction, linear model")
