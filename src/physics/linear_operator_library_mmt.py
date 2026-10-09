@@ -10,7 +10,7 @@ def power_law_derivatives_linear(k, p, max_order, k_min, k_max):
     N_p = np.trapezoid(domain**p, domain)
 
     derivs = []
-    def intercept(k,p): return np.full_like(k, N_p**2)
+    def intercept(k,p): return np.full_like(k, N_p**3)
     def nk(k,p): return (N_p**2)*(k ** p)
     def dk_nk(k,p): return (N_p**2)*(k ** (p-1)) *p 
     def d2k_nk2(k,p): return (N_p**2)*p*(p-1)*(k**(p-2))
@@ -130,7 +130,7 @@ def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
     plt.xlim(-0.9, 0.05)
-    plt.ylim(-12, 12)
+    plt.ylim(-6, 15)
     plt.legend()
     plt.tight_layout()
 
@@ -142,3 +142,49 @@ def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
 
     return reg_exact.coef_, rel_error
 
+def fit_DAM(ps, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=None, show=True):
+
+    ps = np.asarray(ps)
+    plt.figure(figsize=(14,5))
+
+    F_true_list = []
+    derivs_list = []
+    F_fit = 0
+    err_list =[]
+
+    for p in ps:
+        
+        der, N_p = power_law_derivatives_linear(1, p, max_order, k_min, k_max)
+        F = flux_ab(power_law, (p, A), [0, 1], [1, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        F_true_list.append(F)
+        derivs_list.append(der)
+        F_true = np.array(F_true_list)
+        X = np.array(derivs_list)
+
+        for L in range(1, max_order + 1):
+
+            reg_exact = LinearRegression(fit_intercept=False).fit(X[:, :L+1], F_true)
+            coefs = reg_exact.coef_
+            F_fit += coefs[L] * X[:, L]
+            rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-30)
+            err_list.append(rel_error)
+            plt.plot(p, F_fit, linestyle="--", linewidth=2, label="Fitted Flux S[{i}], rel_error={rel_error:.3e}".format(i=L, rel_error=rel_error))
+
+    plt.xlabel(r"$p$")
+    plt.ylabel(r"Flux $\hat{F}(p)$")
+    plt.axhline(0, color="black", linewidth=0.6)
+    plt.plot(ps, F_true,  linewidth=3, label="True Flux")   
+    plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
+    plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
+    plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
+    plt.xlim(-0.9, 0.05)
+    plt.ylim(-6, 15)
+    plt.legend()
+    plt.tight_layout()   
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches="tight")
+    if show:
+        plt.show()
+    plt.close()
+
+    return err_list
