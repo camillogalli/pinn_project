@@ -163,7 +163,7 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
 
         row, term = [1.0], 1.0
         for ell in range(1, max_order + 1):
-            term *= (p - (ell - 1))
+            term *= (p - (ell - 1))*N_p
             row.append(term)
 
         F_fit_p = np.dot(coef_e, row[:len(coef_e)])
@@ -175,8 +175,10 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
     F_true = np.asarray(F_true_list)
     F_fit = np.asarray(F_fit_list)
 
+    global_error = (np.linalg.norm(F_fit - F_true)/ (np.linalg.norm(F_true) + 1e-30))
 
-    plt.plot(ps, F_fit, linestyle="--", linewidth=2, label=f"L={max_order}, errore={rel_e:.3e}")
+
+    plt.plot(ps, F_fit, linestyle="--", linewidth=2, label=f"Reconstructed flux, error={global_error:.3e}")
     plt.plot(ps, F_true,  linewidth=3, label="True Flux")
     plt.xlabel(r"$p$")
     plt.ylabel(r"Flux $\hat{F}(p)$")
@@ -193,5 +195,3 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
     if show:
         plt.show()
     plt.close()
-
-    return err_list
