@@ -142,38 +142,45 @@ def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
 
     return reg_exact.coef_, rel_error
 
-def fit_DAM(ps, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=None, show=True):
+def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=None, show=True):
 
     ps = np.asarray(ps)
     plt.figure(figsize=(14,5))
 
+    coef_list = []
+    err_list = []
+    F_fit_list = []
     F_true_list = []
-    derivs_list = []
-    F_fit = 0
-    err_list =[]
 
     for p in ps:
-        
-        der, N_p = power_law_derivatives_linear(1, p, max_order, k_min, k_max)
-        F = flux_ab(power_law, (p, A), [0, 1], [1, np.inf], beta, "Action", N=N, IntN=IntN)[0]
-        F_true_list.append(F)
-        derivs_list.append(der)
-        F_true = np.array(F_true_list)
-        X = np.array(derivs_list)
 
-        for L in range(1, max_order + 1):
+        F_true = flux_ab(power_law, (p, A), [0, 1], [1, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        F_true_list.append(F_true)
 
-            reg_exact = LinearRegression(fit_intercept=False).fit(X[:, :L+1], F_true)
-            coefs = reg_exact.coef_
-            F_fit += coefs[L] * X[:, L]
-            rel_error = np.linalg.norm(F_fit - F_true) / (np.linalg.norm(F_true) + 1e-30)
-            err_list.append(rel_error)
-            plt.plot(p, F_fit, linestyle="--", linewidth=2, label="Fitted Flux S[{i}], rel_error={rel_error:.3e}".format(i=L, rel_error=rel_error))
+        (coef_e, r2_e, rel_e, N_p) = fit_operators_at_fixed_p_linear(
+                p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
+            )
 
+        row, term = [1.0], 1.0
+        for ell in range(1, max_order + 1):
+            term *= (p - (ell - 1))
+            row.append(term)
+
+        F_fit_p = np.dot(coef_e, row[:len(coef_e)])
+        F_fit_list.append(F_fit_p)
+
+        coef_list.append(coef_e)
+        err_list.append(rel_e)
+
+    F_true = np.asarray(F_true_list)
+    F_fit = np.asarray(F_fit_list)
+
+
+    plt.plot(ps, F_fit, linestyle="--", linewidth=2, label=f"L={max_order}, errore={rel_e:.3e}")
+    plt.plot(ps, F_true,  linewidth=3, label="True Flux")
     plt.xlabel(r"$p$")
     plt.ylabel(r"Flux $\hat{F}(p)$")
-    plt.axhline(0, color="black", linewidth=0.6)
-    plt.plot(ps, F_true,  linewidth=3, label="True Flux")   
+    plt.axhline(0, color="black", linewidth=0.6)   
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
