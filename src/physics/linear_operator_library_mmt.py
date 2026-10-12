@@ -10,7 +10,7 @@ def power_law_derivatives_linear(k, p, max_order, k_min, k_max):
     N_p = np.trapezoid(domain**p, domain)
 
     derivs = []
-    def intercept(k,p): return np.full_like(k, N_p**3)
+    def intercept(k,p): return np.full_like(k, N_p**3, dtype = float)
     def nk(k,p): return (N_p**2)*(k ** p)
     def dk_nk(k,p): return (N_p**2)*(k ** (p-1)) *p 
     def d2k_nk2(k,p): return (N_p**2)*p*(p-1)*(k**(p-2))
@@ -154,19 +154,17 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
 
     for p in ps:
 
-        F_true = flux_ab(power_law, (p, A), [0, 1], [1, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        F_true = flux_ab(power_law, (p, A), [0, 1.0], [1.0, np.inf], beta, "Action", N=N, IntN=IntN)[0]
         F_true_list.append(F_true)
 
         (coef_e, r2_e, rel_e, N_p) = fit_operators_at_fixed_p_linear(
                 p, A, k, k_min, k_max, beta=beta, N=N, IntN=IntN, max_order=max_order, ridge_alpha = 1e-3
             )
 
-        row, term = [1.0], 1.0
-        for ell in range(1, max_order + 1):
-            term *= (p - (ell - 1))*N_p
-            row.append(term)
+        derivs, N_p = power_law_derivatives_linear(1.0, p, max_order, k_min, k_max)
+        derivs = np.asarray(derivs)[:len(coef_e)]
 
-        F_fit_p = np.dot(coef_e, row[:len(coef_e)])
+        F_fit_p = np.dot(coef_e, derivs)
         F_fit_list.append(F_fit_p)
 
         coef_list.append(coef_e)
@@ -182,6 +180,7 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
     plt.plot(ps, F_true,  linewidth=3, label="True Flux")
     plt.xlabel(r"$p$")
     plt.ylabel(r"Flux $\hat{F}(p)$")
+    plt.title("Reconstructed MMT Flux through linear differential model, max order = {}".format(max_order))
     plt.axhline(0, color="black", linewidth=0.6)   
     plt.axvline(-5/6, linestyle="--", linewidth=0.8, color="black", label="Energy KZ Sol.")
     plt.axvline(-1/2, linestyle="-.", linewidth=0.8, color="black", label="Energy Equipartition")
