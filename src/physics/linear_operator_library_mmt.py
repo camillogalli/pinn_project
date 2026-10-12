@@ -145,7 +145,7 @@ def fit_flux_through_1(ps, A, max_order = 4, beta=0.25,
 def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=None, show=True):
 
     ps = np.asarray(ps)
-    plt.figure(figsize=(14,5))
+    plt.figure(figsize=(14,6))
 
     coef_list = []
     err_list = []
@@ -187,6 +187,7 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
     plt.axvline(-2/3, linestyle=":", linewidth=0.8, color="black", label="Action KZ Sol.")
     plt.xlim(-0.9, 0.05)
     plt.ylim(-6, 15)
+    plt.grid(color="lightgrey", linestyle="-", linewidth=0.4)
     plt.legend()
     plt.tight_layout()   
     if save_path:
