@@ -102,5 +102,5 @@ test_data = splits["test"]
 fit_DAM(
     ps = np.linspace(-0.95, 0, 100), k = np.linspace(0.1, 1.0, 100), A = 1, beta=0.25, max_order=0,
     k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200,
-    save_path="outputs_mmt/fit_DAM_mmt_linear_ENERGY", show=False
+    save_path="outputs_mmt/fit_DAM_mmt_linear_ENERGY.png", show=False
 )
