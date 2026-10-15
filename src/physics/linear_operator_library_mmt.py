@@ -28,7 +28,7 @@ def fit_operators_at_fixed_p_linear(p, A, k, k_min, k_max, beta=0.25,
     derivs, N_p = power_law_derivatives_linear(k, p, max_order, k_min, k_max)
 
     F_true = np.array([
-        flux_ab(power_law, (p, A), [0, kc], [kc, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        flux_ab(power_law, (p, A), [0, kc], [kc, np.inf], beta, "Energy", N=N, IntN=IntN)[0]
         for kc in k
     ])
 
@@ -154,7 +154,7 @@ def fit_DAM(ps, k, A, beta, max_order, k_min, k_max, N=300, IntN=200, save_path=
 
     for p in ps:
 
-        F_true = flux_ab(power_law, (p, A), [0, 1.0], [1.0, np.inf], beta, "Action", N=N, IntN=IntN)[0]
+        F_true = flux_ab(power_law, (p, A), [0, 1.0], [1.0, np.inf], beta, "Energy", N=N, IntN=IntN)[0]
         F_true_list.append(F_true)
 
         (coef_e, r2_e, rel_e, N_p) = fit_operators_at_fixed_p_linear(
