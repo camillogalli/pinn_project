@@ -84,11 +84,11 @@ test_data = splits["test"]
 
 #print("Coefficienti (solver MMT): ", coef_e_l ,"| R^2: ", r2_e_l, "errore relativo: ", rel_e_l)
 
-#plot_coefficients_vs_p_linear(
-#    ps = np.linspace(-1, -0.2, 100), A = 1, k = np.linspace(0.1, 1.0, 100), beta = 0.25, 
-#    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
-#    save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
-#)
+plot_coefficients_vs_p_linear(
+    ps = np.linspace(-0.95, -0.1, 100), A = 1, k = np.linspace(0.1, 1.0, 100), beta = 0.25, 
+    k_min = config.K_MIN, k_max = config.K_MAX, N=300, IntN=200, max_order=4,
+    save_path="outputs_mmt/coefficients_vs_p_mmt_linear", show=False 
+)
 
 
 #(coef_e, rel_error) = fit_flux_through_1(
