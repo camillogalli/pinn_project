@@ -127,7 +127,7 @@ def plot_flux_vs_p_TWS(model, ps, A, beta, k_min, sensor_grid, k_c,
     plt.xlabel(r"Spectral Power $p$")
     plt.ylabel(r"$^1 P^4_1$")
     plt.ylim(-5, 15)
-    plt.xlim(-7.5, -1.25)
+    #plt.xlim(-7.5, 1.25)
     plt.title(r"Wave action flux: DeepONet solved TWS ($^1 P^4_{(0, 1) \rightarrow (1, \infty)}$)")
     plt.legend()
     plt.tight_layout()
